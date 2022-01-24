@@ -17,10 +17,12 @@ add_library(glad STATIC
 set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
 
 # Copy needed imgui_impl_xxx.* files to imgui/ root dir for convenience:
-file(COPY imgui/backends/imgui_impl_glfw.h DESTINATION imgui/)
-file(COPY imgui/backends/imgui_impl_glfw.cpp DESTINATION imgui/)
-file(COPY imgui/backends/imgui_impl_opengl3.cpp DESTINATION imgui/)
-file(COPY imgui/backends/imgui_impl_opengl3.h DESTINATION imgui/)
+#message("Copy imgui backend/ impl files")
+# file(COPY imgui/backends/imgui_impl_glfw.h DESTINATION imgui/)
+# file(COPY imgui/backends/imgui_impl_glfw.cpp DESTINATION imgui/)
+# file(COPY imgui/backends/imgui_impl_opengl3.cpp DESTINATION imgui/)
+# file(COPY imgui/backends/imgui_impl_opengl3.h DESTINATION imgui/)
+# file(COPY imgui/backends/imgui_impl_opengl3_loader.h DESTINATION imgui/)
 
 add_subdirectory(imgui)
 
