@@ -1,0 +1,7 @@
+Build/
+Bin/
+bin/
+build/
+.projectile
+.dir-locals.el
+imgui.ini
