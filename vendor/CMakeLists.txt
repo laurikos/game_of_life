@@ -3,8 +3,11 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(GLFW)
 
-file(GLOB GLAD_SOURCES glad/src/gl.c)
-file(GLOB GLAD_HEADERS glad/include/glad/gl.h glad/include/KHR/khrplatform.h)
+# For glad2 -- which did not work as expected...
+#file(GLOB GLAD_SOURCES glad/src/gl.c)
+#file(GLOB GLAD_HEADERS glad/include/glad/gl.h glad/include/KHR/khrplatform.h)
+file(GLOB GLAD_SOURCES glad/src/glad.c)
+file(GLOB GLAD_HEADERS glad/include/glad/glad.h glad/include/KHR/khrplatform.h)
 set(GLAD_INCLUDES glad/include)
 include_directories(${GLAD_INCLUDES})
 add_library(glad STATIC
@@ -18,7 +21,6 @@ file(COPY imgui/backends/imgui_impl_glfw.h DESTINATION imgui/)
 file(COPY imgui/backends/imgui_impl_glfw.cpp DESTINATION imgui/)
 file(COPY imgui/backends/imgui_impl_opengl3.cpp DESTINATION imgui/)
 file(COPY imgui/backends/imgui_impl_opengl3.h DESTINATION imgui/)
-#file(COPY imgui/backends/imgui_impl_opengl3_loader.h DESTINATION imgui/)
 
 add_subdirectory(imgui)
 

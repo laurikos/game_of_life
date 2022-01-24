@@ -29,7 +29,7 @@ include_directories(
   ${GLFW_INCLUDE_DIR}
 )
 
-add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD2)
+# add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 add_subdirectory(vendor)
 
 add_definitions(-pthread)
