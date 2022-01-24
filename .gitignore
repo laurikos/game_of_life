@@ -5,3 +5,9 @@ build/
 .projectile
 .dir-locals.el
 imgui.ini
+
+vendor/imgui/imgui_impl_glfw.cpp
+vendor/imgui/imgui_impl_glfw.h
+vendor/imgui/imgui_impl_opengl3.cpp
+vendor/imgui/imgui_impl_opengl3.h
+vendor/imgui/imgui_impl_opengl3_loader.h
