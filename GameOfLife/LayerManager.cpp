@@ -9,7 +9,7 @@ struct LayerManager::PImpl {
     std::shared_ptr<Window> m_window;
 
     std::vector<std::unique_ptr<Layer>> m_layers;    
-    UILayer* m_uiLayer;
+    UILayer* m_uiLayer = nullptr;
     PImpl(LayerManager& parent, const std::shared_ptr<Window> window);
     ~PImpl();
 
@@ -20,7 +20,7 @@ LayerManager::PImpl::PImpl(LayerManager& parent, const std::shared_ptr<Window> w
     : m_parent(parent),
       m_window(window)
 {
-
+    
 }
 
 LayerManager::PImpl::~PImpl()
@@ -80,9 +80,13 @@ void LayerManager::updateLayers(float deltaTime)
 
 void LayerManager::renderLayers()
 {
+    if (!m_pImpl->m_uiLayer) { return; }
+    
     m_pImpl->m_uiLayer->startSceneUI();
+
     for (const auto& l : m_pImpl->m_layers) {
         l->onRender();
     }
+
     m_pImpl->m_uiLayer->endSceneUI(); 
 }

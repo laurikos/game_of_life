@@ -17,8 +17,6 @@ public:
 
     virtual bool isImGuiLayer() override { return true; }
     
-    void startSceneUI();
-    void endSceneUI();
 private:
     struct PImpl;
     std::unique_ptr<PImpl> m_pImpl;
