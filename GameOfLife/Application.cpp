@@ -11,6 +11,8 @@ Application::Application()
     : m_window(std::make_shared<Window>()),
       m_layerManager(std::make_unique<LayerManager>(m_window))
 {
+    TemporaryRenderer::init();
+        
     m_isRunning = true;
 
     m_layerManager->insertNewLayer(std::make_unique<UILayer>(m_layerManager.get()));
@@ -19,7 +21,7 @@ Application::Application()
 
 Application::~Application()
 {
-
+    TemporaryRenderer::close();
 }
 
 void Application::run()
@@ -31,10 +33,6 @@ void Application::run()
 
         TemporaryRenderer::setClearColor();
         TemporaryRenderer::clear();
-
-        // rendererData->shader->bind();
-        // glBindVertexArray(rendererData->vertexArray);
-        // glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
         if (glfwWindowShouldClose(m_window->window())) {
             m_isRunning = false;

@@ -12,8 +12,10 @@ public:
     static void close();    
 
     static void handleResize(std::uint32_t width, std::uint32_t height);
+    static void setViewport(std::uint32_t x, std::uint32_t y,
+                            std::uint32_t width, std::uint32_t height);
 
-    static void setClearColor();
+    static void setClearColor(const glm::vec4& color = { 0.1f, 0.1f, 0.1f, 1.0f });
     static void clear();
     
     static void start(const Camera& camera);

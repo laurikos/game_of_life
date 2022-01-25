@@ -15,7 +15,7 @@ public:
     virtual void onUpdate(float deltaTime) override;
     virtual void onRender() override;
 
-    virtual bool isImGuiLayer() override { return true; }
+    virtual bool isImGuiLayer() override { return false; }
     
 private:
     struct PImpl;

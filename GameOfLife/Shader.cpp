@@ -1,10 +1,11 @@
 #include "Shader.h"
 
-#include <glad/glad.h>
-
 #include <assert.h>
 #include <vector>
 #include <stdio.h>
+
+#include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 struct Shader::PImpl {
     Shader& m_parent;
@@ -157,4 +158,53 @@ Shader::~Shader()
 void Shader::bind() const
 {
     glUseProgram(m_pImpl->m_shaderProgram);
+}
+
+void Shader::uploadUniformMat3(const std::string& name, const glm::mat3& matrix)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::uploadUniformMat4(const std::string& name, const glm::mat4& matrix)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void Shader::uploadUniformInt(const std::string& name, std::int32_t value)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniform1i(location, value);
+}
+
+void Shader::uploadUniformIntArray(const std::string& name,
+                                         std::int32_t* values, std::uint32_t count)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniform1iv(location, count, values);
+}
+    
+void Shader::uploadUniformFloat(const std::string& name, float value)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniform1f(location, value);
+}
+
+void Shader::uploadUniformFloat2(const std::string& name, const glm::vec2& vec)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniform2f(location, vec.x, vec.y);
+}
+
+void Shader::uploadUniformFloat3(const std::string& name, const glm::vec3& vec)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniform3f(location, vec.x, vec.y, vec.z);
+}
+
+void Shader::uploadUniformFloat4(const std::string& name, const glm::vec4& vec)
+{
+    GLint location = glGetUniformLocation(m_pImpl->m_shaderProgram, name.c_str());
+    glUniform4f(location, vec.x, vec.y, vec.z, vec.w);
 }
