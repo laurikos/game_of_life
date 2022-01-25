@@ -5,11 +5,11 @@
 
 class LayerManager;
 
-class UILayer : public Layer
+class SandboxLayer : public Layer
 {
 public:
-    UILayer(LayerManager* manager);
-    virtual ~UILayer();
+    SandboxLayer(LayerManager* manager);
+    virtual ~SandboxLayer();
 
     virtual void init() override;
     virtual void onUpdate(float deltaTime) override;

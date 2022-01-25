@@ -1,3 +1,8 @@
+/*
+ * Should be OpenGLContext
+ * Loads the glad as version > 3.x OpenGL API handler.
+ */
+
 #include "WindowContext.h"
 #include <stdio.h>
 #include <assert.h>

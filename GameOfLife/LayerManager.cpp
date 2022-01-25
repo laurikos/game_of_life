@@ -8,8 +8,8 @@ struct LayerManager::PImpl {
     LayerManager& m_parent;
     std::shared_ptr<Window> m_window;
 
-    std::vector<std::unique_ptr<Layer>> m_layers;
-    
+    std::vector<std::unique_ptr<Layer>> m_layers;    
+    UILayer* m_uiLayer;
     PImpl(LayerManager& parent, const std::shared_ptr<Window> window);
     ~PImpl();
 
@@ -31,7 +31,11 @@ LayerManager::PImpl::~PImpl()
 Layer* LayerManager::PImpl::addLayer(std::unique_ptr<Layer> layer)
 {
     m_layers.emplace_back(std::move(layer));
-    return m_layers.back().get();
+    Layer* insertedLayer = m_layers.back().get();
+    if (insertedLayer->isImGuiLayer()) {
+        m_uiLayer = static_cast<UILayer*>(insertedLayer);
+    }
+    return insertedLayer;
 }
 
 LayerManager::LayerManager(const std::shared_ptr<Window>& window)
@@ -60,35 +64,25 @@ GLFWwindow* LayerManager::getWindow() const
     return m_pImpl->m_window->window();
 }
 
-void LayerManager::insertNewLayer(std::unique_ptr<Layer> layer)
+Layer* LayerManager::insertNewLayer(std::unique_ptr<Layer> layer)
 {
     auto insertedLayer = m_pImpl->addLayer(std::move(layer));
     insertedLayer->init();
+    return insertedLayer;
 }
 
-void LayerManager::updateLayers()
+void LayerManager::updateLayers(float deltaTime)
 {
     for (const auto& l : m_pImpl->m_layers) {
-        l->onUpdate();
+        l->onUpdate(deltaTime);
     }
 }
 
 void LayerManager::renderLayers()
 {
+    m_pImpl->m_uiLayer->startSceneUI();
     for (const auto& l : m_pImpl->m_layers) {
-
-        if (l->isImGuiLayer()) {
-            UILayer* uiLayer = static_cast<UILayer*>(l.get());
-            uiLayer->startSceneUI();
-        }
-        
         l->onRender();
-        
-        if (l->isImGuiLayer()) {
-            UILayer* uiLayer = static_cast<UILayer*>(l.get());
-            uiLayer->endSceneUI();
-        }
-
     }
-
+    m_pImpl->m_uiLayer->endSceneUI(); 
 }

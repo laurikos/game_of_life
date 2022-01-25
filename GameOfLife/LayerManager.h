@@ -18,8 +18,8 @@ public:
 
     GLFWwindow* getWindow() const;
 
-    void insertNewLayer(std::unique_ptr<Layer> layer);
-    void updateLayers();
+    Layer* insertNewLayer(std::unique_ptr<Layer> layer);
+    void updateLayers(float deltaTime);
     void renderLayers();
     
 private:
