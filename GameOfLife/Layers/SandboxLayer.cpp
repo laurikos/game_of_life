@@ -39,10 +39,10 @@ SandboxLayer::PImpl::PImpl(SandboxLayer& parent, LayerManager* manager)
       m_manager(manager),
       // m_rendererData(std::make_unique<RendererData>()),
       m_camera(std::make_unique<Camera>(
-                   -1 * (1200.0f / 720.0f) * 1.0f,
-                   (1200.0f / 720.0f) * 1.0f,
-                   -1 * 1.0f,
-                   1.0f))
+                   -1 * (1200.0f / 720.0f) * 3.0f,
+                   (1200.0f / 720.0f) * 3.0f,
+                   -1 * 3.0f,
+                   3.0f))
 {
     m_camera->setPosition({ 0.0f, 0.0f, 0.0f });
 }
@@ -114,9 +114,9 @@ void SandboxLayer::PImpl::onUpdate(float deltaTime)
 
     TemporaryRenderer::start(m_camera.get());
 
-    for (int i = -10; i < 10; ++i) {
+    for (int i = -50; i < 50; ++i) {
 
-        for (int j = -10; j < 10; ++j) {
+        for (int j = -50; j < 50; ++j) {
             
             TemporaryRenderer::drawQuad({ (j/10.0f), (i/10.0f), 0.0f },
                                         { 0.08f, 0.08f },

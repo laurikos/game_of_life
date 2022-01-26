@@ -2,6 +2,7 @@
 #include "TemporaryRenderer.h"
 #include "Layers/UILayer.h"
 #include "Layers/SandboxLayer.h"
+#include "Layers/GameOfLife.h"
 #include "Window.h"
 #include "LayerManager.h"
 
@@ -17,7 +18,10 @@ Application::Application()
     m_isRunning = true;
 
     m_layerManager->insertNewLayer(std::make_unique<UILayer>(m_layerManager.get()));
+#ifdef SANDBOX_APP
     m_layerManager->insertNewLayer(std::make_unique<SandboxLayer>(m_layerManager.get()));
+#endif
+    m_layerManager->insertNewLayer(std::make_unique<GameOfLife>(m_layerManager.get()));
 }
 
 Application::~Application()

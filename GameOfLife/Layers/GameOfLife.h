@@ -1,0 +1,23 @@
+#pragma once
+
+#include "../Layer.h"
+#include <memory>
+
+class LayerManager;
+
+class GameOfLife : public Layer
+{
+public:
+    GameOfLife(LayerManager* manager);
+    virtual ~GameOfLife();
+
+    virtual void init() override;
+    virtual void onUpdate(float deltaTime) override;
+    virtual void onRender() override;
+
+    virtual bool isImGuiLayer() override { return false; }
+    
+private:
+    struct PImpl;
+    std::unique_ptr<PImpl> m_pImpl;
+};
