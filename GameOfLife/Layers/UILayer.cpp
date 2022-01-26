@@ -66,7 +66,7 @@ void UILayer::PImpl::init()
     auto window = m_manager->getWindow();
     
     // Setup Platform/Renderer bindings
-    const char* glslVersion = "#version 450";
+    const char* glslVersion = "#version 330";
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glslVersion);
     /*

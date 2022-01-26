@@ -10,18 +10,18 @@
 struct SandboxLayer::PImpl {
     SandboxLayer& m_parent;
     LayerManager* m_manager;
-
+    std::unique_ptr<Camera> m_camera;
     // Should move to Render class or something
     // lets see..
-    struct RendererData
-    {
-        std::uint32_t vertexArray;
-        std::uint32_t vertexBuffer;
-        std::uint32_t indexBuffer;
-        std::unique_ptr<Shader> shader;
-    };
+    // struct RendererData
+    // {
+    //     std::uint32_t vertexArray;
+    //     std::uint32_t vertexBuffer;
+    //     std::uint32_t indexBuffer;
+    //     std::unique_ptr<Shader> shader;
+    // };
 
-    std::unique_ptr<RendererData> m_rendererData;
+    // std::unique_ptr<RendererData> m_rendererData;
     
     PImpl(SandboxLayer& parent, LayerManager* manager);
     ~PImpl();
@@ -37,9 +37,14 @@ struct SandboxLayer::PImpl {
 SandboxLayer::PImpl::PImpl(SandboxLayer& parent, LayerManager* manager)
     : m_parent(parent),
       m_manager(manager),
-      m_rendererData(std::make_unique<RendererData>())
+      // m_rendererData(std::make_unique<RendererData>()),
+      m_camera(std::make_unique<Camera>(
+                   -1 * (1200.0f / 720.0f) * 1.0f,
+                   (1200.0f / 720.0f) * 1.0f,
+                   -1 * 1.0f,
+                   1.0f))
 {
-
+    m_camera->setPosition({ 0.0f, 0.0f, 0.0f });
 }
 
 SandboxLayer::PImpl::~PImpl()
@@ -47,7 +52,10 @@ SandboxLayer::PImpl::~PImpl()
 }
 
 void SandboxLayer::PImpl::init()
-{    
+{
+    // TemporaryRenderer::init();
+    // TemporaryRenderer::setViewport(0, 0, 1200, 720);
+#ifdef FIRST_DRAFT
     glGenVertexArrays(1, &m_rendererData->vertexArray);
     glBindVertexArray(m_rendererData->vertexArray);
 
@@ -96,6 +104,7 @@ void main()
 )";
     
     m_rendererData->shader = std::make_unique<Shader>(vertexShaderSource, fragmentShaderSource);
+#endif
 }
 
 void SandboxLayer::PImpl::onUpdate(float deltaTime)
@@ -103,9 +112,26 @@ void SandboxLayer::PImpl::onUpdate(float deltaTime)
     TemporaryRenderer::setClearColor();
     TemporaryRenderer::clear();
 
+    TemporaryRenderer::start(m_camera.get());
+
+    for (int i = -10; i < 10; ++i) {
+
+        for (int j = -10; j < 10; ++j) {
+            
+            TemporaryRenderer::drawQuad({ (j/10.0f), (i/10.0f), 0.0f },
+                                        { 0.08f, 0.08f },
+                                        { 0.67f, 0.17f, 0.27f, 1.0f});
+        }
+        
+    }
+    
+    TemporaryRenderer::end();
+
+#ifdef FIRST_DRAFT
     m_rendererData->shader->bind();
     glBindVertexArray(m_rendererData->vertexArray);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+#endif
 }
 
 void SandboxLayer::PImpl::onRender()

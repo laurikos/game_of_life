@@ -12,7 +12,8 @@ Application::Application()
       m_layerManager(std::make_unique<LayerManager>(m_window))
 {
     TemporaryRenderer::init();
-        
+    TemporaryRenderer::setViewport(0, 0, m_window->width(), m_window->height());
+    
     m_isRunning = true;
 
     m_layerManager->insertNewLayer(std::make_unique<UILayer>(m_layerManager.get()));
@@ -31,15 +32,13 @@ void Application::run()
         float deltaTime = time - m_lastTime;
         m_lastTime = time;
 
-        TemporaryRenderer::setClearColor();
-        TemporaryRenderer::clear();
-
         if (glfwWindowShouldClose(m_window->window())) {
             m_isRunning = false;
         }
         
         m_layerManager->updateLayers(deltaTime);
         m_layerManager->renderLayers();
+        
         m_window->onUpdate();
     }
 }
