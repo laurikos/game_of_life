@@ -5,6 +5,8 @@
 
 class LayerManager;
 
+enum class GameMode { Auto, Manual };
+
 class GameOfLife : public Layer
 {
 public:

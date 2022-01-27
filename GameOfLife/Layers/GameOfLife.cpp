@@ -4,6 +4,7 @@
 #include "../Camera.h"
 #include "../Shader.h"
 #include "../Random.h"
+#include "../CameraController.h"
 
 #include <GLFW/glfw3.h>
 
@@ -12,10 +13,13 @@
 struct GameOfLife::PImpl {
     GameOfLife& m_parent;
     LayerManager* m_manager;
-    std::unique_ptr<Camera> m_camera;
+    std::unique_ptr<CameraController> m_camera;
 
     std::vector<std::vector<std::uint32_t>> m_cellState;
 
+    GameMode m_gameMode;
+    bool m_nextStep;
+    
     std::uint32_t m_lenY;
     std::uint32_t m_lenX;
     
@@ -31,38 +35,40 @@ struct GameOfLife::PImpl {
     void endSceneUI();
 
     void initGameState(std::size_t lenX, std::size_t lenY);
+    void initGameStateFromTestboard();
     void checkCells();
+    void handleNextStep();
 };
 
 GameOfLife::PImpl::PImpl(GameOfLife& parent, LayerManager* manager)
     : m_parent(parent),
       m_manager(manager),
-      m_camera(std::make_unique<Camera>(
-                   -1 * (1200.0f / 720.0f) * 3.0f,
-                   (1200.0f / 720.0f) * 3.0f,
-                   -1 * 3.0f,
-                   3.0f))
+      m_camera(std::make_unique<CameraController>((1280.0f / 720.0f), 5.0f))
 {
-    m_camera->setPosition({ 0.0f, 0.0f, 0.0f });
+    m_camera->getCamera().setPosition({ 0.0f, 0.0f, 0.0f });
 }
 
 GameOfLife::PImpl::~PImpl()
 {
+
 }
 
 void GameOfLife::PImpl::init()
 {
+    m_gameMode = GameMode::Manual;
+    m_nextStep = false;
     initGameState(100, 100);
 }
 
 void GameOfLife::PImpl::onUpdate(float deltaTime)
 {
+    m_camera->onUpdate(deltaTime);
+    
     TemporaryRenderer::setClearColor();
     TemporaryRenderer::clear();
 
-    TemporaryRenderer::start(m_camera.get());
-
-
+    TemporaryRenderer::start(m_camera->getCamera());
+    
     std::int32_t positionFixX = (-1) * (m_lenX / 2.0f);
     std::int32_t positionFixY = (-1) * (m_lenY / 2.0f);
     std::int32_t posX;
@@ -77,20 +83,31 @@ void GameOfLife::PImpl::onUpdate(float deltaTime)
             posX = positionFixX + j;
             
             if (m_cellState.at(i).at(j)) {
+
                 TemporaryRenderer::drawQuad({ (posY/10.0f), (posX/10.0f), 0.0f },
                                             { 0.08f, 0.08f },
                                             { 0.67f, 0.17f, 0.27f, 1.0f});
             } else {
+                
                 TemporaryRenderer::drawQuad({ (posY/10.0f), (posX/10.0f), 0.0f },
                                             { 0.08f, 0.08f },
                                             { 0.2f, 0.2f, 0.2f, 1.0f});
-
             }
         }
         
     }
 
-    checkCells();
+    if (m_gameMode == GameMode::Auto) {
+
+        checkCells();
+
+    }
+
+    if (m_gameMode == GameMode::Manual && m_nextStep) {
+
+        handleNextStep();
+        
+    }
     
     TemporaryRenderer::end();
 }
@@ -101,10 +118,40 @@ void GameOfLife::PImpl::onRender()
 
 void GameOfLife::PImpl::onEvent(Event& e)
 {
-    if (e.type() == EventType::KeyPressed) {
-        if (e.keyValue() == GLFW_KEY_RIGHT) {
-            printf("%s\n", "LEFT KEY PRESSED!");
+    if (e.type() == EventType::KeyPressed || e.type() == EventType::KeyReleased) {
+        if (e.keyValue() == GLFW_KEY_LEFT) {
+            m_camera->onEvent(e);
         }
+        if (e.keyValue() == GLFW_KEY_DOWN) {
+            m_camera->onEvent(e);
+        }
+        if (e.keyValue() == GLFW_KEY_RIGHT) {
+            m_camera->onEvent(e);
+        }
+        if (e.keyValue() == GLFW_KEY_UP) {
+            m_camera->onEvent(e);
+        }
+    }
+    
+    if (e.type() == EventType::KeyPressed) {
+        if (e.keyValue() == GLFW_KEY_X) {
+
+            m_nextStep = true;
+        }
+        if (e.keyValue() == GLFW_KEY_SPACE) {
+            m_nextStep = false;
+            if (m_gameMode == GameMode::Auto) {
+                m_gameMode = GameMode::Manual;
+            } else {
+                m_gameMode = GameMode::Auto;
+            }
+            
+        }
+    }
+
+    if (e.type() == EventType::MouseScrolled) {
+        // m_camera->onEvent(e);
+        // This did not work for whatever reason. come back to it if needed..        
     }
 }
 
@@ -115,14 +162,14 @@ void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
     m_lenX = lenX;
     m_lenY = lenY;
     // Start with cell one:
-    // for automation have, say 30% alive ?
+    // for automation have, say 20% alive ?
     float startsAlive = 0.0f;
     for (std::size_t y = 0; y < lenY; ++y) {
         
         for (std::size_t x = 0; x < lenX; ++x) {
 
             startsAlive = Random::Float();
-            if (startsAlive < 0.3f) {
+            if (startsAlive < 0.2f) {
 
                 m_cellState.at(y).at(x) = 1;
 
@@ -131,6 +178,10 @@ void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
         }
         
     }   
+}
+
+void GameOfLife::PImpl::initGameStateFromTestboard()
+{
 }
 
 void GameOfLife::PImpl::checkCells()
@@ -142,23 +193,6 @@ void GameOfLife::PImpl::checkCells()
     bool hasRight = true;
     bool hasTop = true;
     bool hasBottom = true;    
-
-    // std::cout << "\n[ ";    
-    // for (std::size_t y = 0; y < m_lenY; ++y) {
-
-    //     std::cout << "\n{";
-        
-    //     for (std::size_t x = 0; x < m_lenX; ++x) {
-
-    //         std:: cout << " " << m_cellState.at(y).at(x) << " ";
-    //     }
-        
-    //     std::cout << "}\n";
-
-    // }
-    
-    // std::cout << "] ";
-    // std::cout << "\n" << std::endl;
     
     for (std::size_t y = 0; y < m_lenY; ++y) {
         
@@ -184,86 +218,34 @@ void GameOfLife::PImpl::checkCells()
                 hasBottom = false;
             }
 
-            if (x == (m_lenX -1)) {
+            if (x == (m_lenX - 1)) {
                 hasRight = false;
             }
 
             if (hasTop) {
-                
-                if (!hasLeft) {
-                    for (std::uint32_t topX = x; topX < x + 1; topX++) {
-                        if (m_cellState.at(y - 1).at(topX)) { numNeighbors++; }
-                    }
-                }
-                else if (!hasRight) {
-                    for (std::uint32_t topX = x - 1; topX < x; topX++) {
-                        if (m_cellState.at(y - 1).at(topX)) { numNeighbors++; }
-                    }
-                }
-                else if (hasRight && hasLeft) {
-                    for (std::uint32_t topX = x - 1; topX < x + 1; topX++) {
-                        if (m_cellState.at(y - 1).at(topX)) { numNeighbors++; }
-                    }
-                }
-                
+                if (m_cellState.at(y - 1).at(x)) { numNeighbors++; }
             }
-
-            else if (hasBottom) {
-                
-                if (!hasLeft) {
-                    for (std::uint32_t botX = x; botX < x + 1; botX++) {
-                        if (m_cellState.at(y + 1).at(botX)) { numNeighbors++; }
-                    }
-                }
-                else if (!hasRight) {
-                    for (std::uint32_t botX = x - 1; botX < x; botX++) {
-                        if (m_cellState.at(y + 1).at(botX)) { numNeighbors++; }
-                    }
-                }
-                else if (hasRight && hasLeft) {
-                    for (std::uint32_t botX = x - 1; botX < x + 1; botX++) {
-                        if (m_cellState.at(y + 1).at(botX)) { numNeighbors++; }
-                    }
-                }
-
+            if (hasLeft) {
+                if (m_cellState.at(y).at(x - 1)) { numNeighbors++; }
             }
-
+            if (hasBottom) {
+                if (m_cellState.at(y + 1).at(x)) { numNeighbors++; }
+            }
             if (hasRight) {
-
-                if (!hasTop) {
-                    for (std::uint32_t rightY = y; rightY < y + 1; rightY++) {
-                        if (m_cellState.at(rightY).at(x+1)) { numNeighbors++; }
-                    }
-                }
-                else if (!hasBottom) {
-                    for (std::uint32_t rightY = y-1; rightY < y; rightY++) {
-                        if (m_cellState.at(rightY).at(x+1)) { numNeighbors++; }
-                    }
-                }
-                else if (hasTop && hasBottom) {
-                    for (std::uint32_t rightY = y-1; rightY < y + 1; rightY++) {
-                        if (m_cellState.at(rightY).at(x+1)) { numNeighbors++; }
-                    }
-                }
+                if (m_cellState.at(y).at(x + 1)) { numNeighbors++; }
             }
-
-            else if (hasLeft) {
-                if (!hasTop) {
-                    for (std::uint32_t rightY = y; rightY < y + 1; rightY++) {
-                        if (m_cellState.at(rightY).at(x-1)) { numNeighbors++; }
-                    }
-                }
-                else if (!hasBottom) {
-                    for (std::uint32_t rightY = y-1; rightY < y; rightY++) {
-                        if (m_cellState.at(rightY).at(x-1)) { numNeighbors++; }
-                    }
-                }
-                else if (hasTop && hasBottom) {
-                    for (std::uint32_t rightY = y-1; rightY < y + 1; rightY++) {
-                        if (m_cellState.at(rightY).at(x-1)) { numNeighbors++; }
-                    }
-                }
-
+            
+            if (hasTop && hasLeft) {
+                if (m_cellState.at(y - 1).at(x - 1)) { numNeighbors++; }
+            }
+            if (hasBottom && hasLeft) {
+                if (m_cellState.at(y + 1).at(x - 1)) { numNeighbors++; }
+            }
+            if (hasBottom && hasRight) {
+                if (m_cellState.at(y + 1).at(x + 1)) { numNeighbors++; }
+            }
+            if (hasTop && hasRight) {
+                if (m_cellState.at(y - 1).at(x + 1)) { numNeighbors++; }
             }
 
             if (currCell) {
@@ -286,6 +268,12 @@ void GameOfLife::PImpl::checkCells()
         }
 
     }
+}
+
+void GameOfLife::PImpl::handleNextStep()
+{
+    checkCells();
+    m_nextStep = false;
 }
 
 GameOfLife::GameOfLife(LayerManager* manager)

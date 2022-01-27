@@ -112,7 +112,7 @@ void SandboxLayer::PImpl::onUpdate(float deltaTime)
     TemporaryRenderer::setClearColor();
     TemporaryRenderer::clear();
 
-    TemporaryRenderer::start(m_camera.get());
+    TemporaryRenderer::start(*(m_camera.get()));
 
     for (int i = -50; i < 50; ++i) {
 

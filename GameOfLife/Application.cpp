@@ -8,17 +8,8 @@
 
 #include <GLFW/glfw3.h>
 
-/*
- *
- * mkdir -p build/linux/debug/ && cd $_ && 
-   CXX=clang++ C=clang cmake -DCMAKE_BUILD_TYPE=Debug ../../../ && make -j6
- *
- *
- * cd build/linux/debug/ && ./GameOfLife
- */
-
 Application::Application()
-    : m_window(std::make_shared<Window>()),
+    : m_window(std::make_shared<Window>("Game of Life", 1280, 720)),
       m_layerManager(std::make_unique<LayerManager>(m_window))
 {
     TemporaryRenderer::init();
@@ -62,9 +53,8 @@ void Application::run()
         m_layerManager->renderLayers();
 
         while (hasEvents) {
-            // const auto& [event, isEmpty ] = m_window->fetchWindowEvent();
-            auto fetchedEvent = m_window->fetchWindowEvent();
-            
+
+            auto fetchedEvent = m_window->fetchWindowEvent();            
             if (fetchedEvent.second) { hasEvents = false; }
             onEvent(fetchedEvent.first);
         }
@@ -77,7 +67,7 @@ void Application::onEvent(Event& e)
 {
     if (e.type() == EventType::WindowResize) {
         auto values = e.windowValues();
-        TemporaryRenderer::handleResize(values.first, values.second);
+        TemporaryRenderer::handleResize(values.first, values.second);        
     }
 
     // This is (at least for now) implented since glfwWindowShouldClose

@@ -191,7 +191,7 @@ public:
     static void setClearColor(const glm::vec4& color = { 0.1f, 0.1f, 0.1f, 1.0f });
     static void clear();
     
-    static void start(Camera* camera);
+    static void start(Camera& camera);
     static void end();
 
     static void drawQuad(const glm::vec3& position, const glm::vec2 size,

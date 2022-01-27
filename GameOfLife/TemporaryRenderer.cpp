@@ -136,10 +136,10 @@ void TemporaryRenderer::setViewport(std::uint32_t x, std::uint32_t y,
     glViewport(x, y, width, height);
 }
 
-void TemporaryRenderer::start(Camera* camera)
+void TemporaryRenderer::start(Camera& camera)
 {
     s_data.shader->bind();
-    s_data.shader->uploadUniformMat4("u_ViewProjection", camera->viewProjectionMatrix());
+    s_data.shader->uploadUniformMat4("u_ViewProjection", camera.viewProjectionMatrix());
 
     s_data.quadIndicesCount = 0;
     s_data.pQuadVertices = s_data.quadVertices.get();
