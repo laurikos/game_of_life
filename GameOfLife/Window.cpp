@@ -1,10 +1,14 @@
 #include "Window.h"
-#include "WindowContext.h"
-#include <functional>
+#include "OpenGLContext.h"
+
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+
 #include <stdio.h>
 #include <assert.h>
+#include <queue>
+#include <functional>
+#include <tuple>
 
 static void glfwErrorCallback(int errCode, const char* description)
 {
@@ -16,19 +20,23 @@ struct Window::PImpl {
     Window& m_parent;
     
     std::unique_ptr<GLFWwindow, std::function<void(GLFWwindow*)>> m_window;
-    std::unique_ptr<WindowContext> m_windowContext;
+    std::unique_ptr<OpenGLContext> m_windowContext;
 
-    struct WindowData {
+    struct WindowConfigs {
         std::string title;
         std::uint32_t width;
         std::uint32_t height;
         bool vSync;
+        std::function<void(Event&)> eventCallback;
     } m_savedWindowCfg;
+
+    std::unique_ptr<std::queue<Event>> m_events;
     
     PImpl(Window& parent);
 
     void init(const std::string& title,
               std::uint32_t width, std::uint32_t height);
+    void eventCallBackFunc(Event& e);
 };
 
 Window::PImpl::PImpl(Window& parent)
@@ -44,6 +52,11 @@ void Window::PImpl::init(const std::string& title,
     m_savedWindowCfg.width = width;
     m_savedWindowCfg.title = title;
     m_savedWindowCfg.vSync = true;
+
+    m_events = std::make_unique<std::queue<Event>>();
+    
+    m_savedWindowCfg.eventCallback =
+        std::bind(&PImpl::eventCallBackFunc, this, std::placeholders::_1);
 
     int success = glfwInit();
     if (!success) {
@@ -69,9 +82,10 @@ void Window::PImpl::init(const std::string& title,
             glfwDestroyWindow(window);
         });
 
-    m_windowContext = std::make_unique<WindowContext>(m_window.get());
+    m_windowContext = std::make_unique<OpenGLContext>(m_window.get());
     m_windowContext->init();
 
+    // Was for glad2:
     // bool err = gladLoadGL(glfwGetProcAddress) == 0;
     bool err = gladLoadGL() == 0;
     if (err) {
@@ -85,6 +99,62 @@ void Window::PImpl::init(const std::string& title,
     /*
      * glfw window, key, cursor callbacks:
      */
+    glfwSetWindowSizeCallback(m_window.get(), [](GLFWwindow* window, int width, int height) {
+        Event e(EventType::WindowResize, width, height);
+        auto& winUsrPtr = *static_cast<WindowConfigs*>(glfwGetWindowUserPointer(window));
+        winUsrPtr.eventCallback(e);        
+    });
+
+    glfwSetWindowCloseCallback(m_window.get(), [](GLFWwindow* window){
+        auto& winUsrPtr = *static_cast<WindowConfigs*>(glfwGetWindowUserPointer(window));
+        Event e(EventType::WindowClose);
+        winUsrPtr.eventCallback(e);
+    });
+
+    glfwSetKeyCallback(m_window.get(), [](GLFWwindow* window, int key,
+                                          int scancode, int action, int mods) {
+        auto& winUsrPtr =
+            *static_cast<WindowConfigs*>(glfwGetWindowUserPointer(window));
+
+        switch (action) {
+            case GLFW_PRESS: {
+                Event e(EventType::KeyPressed, key);
+                winUsrPtr.eventCallback(e);
+                break;
+            }
+            case GLFW_RELEASE: {
+                Event e(EventType::KeyReleased, key);
+                winUsrPtr.eventCallback(e);
+                break;
+            }
+            case GLFW_REPEAT: {
+                break;
+            }
+        }
+    });
+
+    glfwSetScrollCallback(m_window.get(), [](GLFWwindow* window, double xOff, double yOff){
+        auto& winUsrPtr =
+            *static_cast<WindowConfigs*>(glfwGetWindowUserPointer(window));
+
+        Event e(EventType::MouseScrolled, 0, 0, 0,
+                static_cast<float>(xOff), static_cast<float>(yOff));
+        winUsrPtr.eventCallback(e);
+    });
+
+    glfwSetCursorPosCallback(m_window.get(), [](GLFWwindow* window, double xPos, double yPos){
+        auto& winUsrPtr =
+            *static_cast<WindowConfigs*>(glfwGetWindowUserPointer(window));
+
+        Event event(EventType::MouseMoved, 0, 0, 0,
+                    static_cast<float>(xPos), static_cast<float>(yPos));
+        winUsrPtr.eventCallback(event);
+    });
+}
+
+void Window::PImpl::eventCallBackFunc(Event& e)
+{
+    m_events->push(e);
 }
 
 Window::Window(const std::string& title,
@@ -135,4 +205,15 @@ GLFWwindow* Window::window() const
 {
     assert(m_pImpl->m_window && "Did not find GLFWwindow object");
     return m_pImpl->m_window.get();
+}
+
+std::pair<Event, bool> Window::fetchWindowEvent()
+{
+    if (!m_pImpl->m_events->size()) {
+        return std::make_pair<Event, bool>(EventType::NEvents, true);
+    }
+
+    Event e = m_pImpl->m_events->front();
+    m_pImpl->m_events->pop();
+    return std::make_pair<Event, bool>(std::move(e), false);
 }

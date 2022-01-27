@@ -14,7 +14,8 @@ public:
     virtual void init() override;
     virtual void onUpdate(float deltaTime) override;
     virtual void onRender() override;
-
+    virtual void onEvent(Event& event) override;
+    
     virtual bool isImGuiLayer() override { return false; }
     
 private:

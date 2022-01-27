@@ -5,6 +5,8 @@
 #include "../Shader.h"
 #include "../Random.h"
 
+#include <GLFW/glfw3.h>
+
 #include <iostream>
 
 struct GameOfLife::PImpl {
@@ -23,7 +25,8 @@ struct GameOfLife::PImpl {
     void init();
     void onUpdate(float deltaTime);
     void onRender();
-
+    void onEvent(Event& e);
+    
     void startSceneUI();
     void endSceneUI();
 
@@ -96,6 +99,15 @@ void GameOfLife::PImpl::onRender()
 {
 }
 
+void GameOfLife::PImpl::onEvent(Event& e)
+{
+    if (e.type() == EventType::KeyPressed) {
+        if (e.keyValue() == GLFW_KEY_RIGHT) {
+            printf("%s\n", "LEFT KEY PRESSED!");
+        }
+    }
+}
+
 void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
 {
     m_cellState = std::vector(lenY, std::vector<std::uint32_t>(lenX));
@@ -103,14 +115,14 @@ void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
     m_lenX = lenX;
     m_lenY = lenY;
     // Start with cell one:
-    // for automation have, say 20% alive ?
+    // for automation have, say 30% alive ?
     float startsAlive = 0.0f;
     for (std::size_t y = 0; y < lenY; ++y) {
         
         for (std::size_t x = 0; x < lenX; ++x) {
 
             startsAlive = Random::Float();
-            if (startsAlive < 0.2f) {
+            if (startsAlive < 0.3f) {
 
                 m_cellState.at(y).at(x) = 1;
 
@@ -302,3 +314,7 @@ void GameOfLife::onRender()
     m_pImpl->onRender();
 }
 
+void GameOfLife::onEvent(Event& e)
+{
+    m_pImpl->onEvent(e);
+}

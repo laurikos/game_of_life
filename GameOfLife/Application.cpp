@@ -8,6 +8,15 @@
 
 #include <GLFW/glfw3.h>
 
+/*
+ *
+ * mkdir -p build/linux/debug/ && cd $_ && 
+   CXX=clang++ C=clang cmake -DCMAKE_BUILD_TYPE=Debug ../../../ && make -j6
+ *
+ *
+ * cd build/linux/debug/ && ./GameOfLife
+ */
+
 Application::Application()
     : m_window(std::make_shared<Window>()),
       m_layerManager(std::make_unique<LayerManager>(m_window))
@@ -17,11 +26,17 @@ Application::Application()
     
     m_isRunning = true;
 
+#ifdef DEBUG_UI_LAYER
     m_layerManager->insertNewLayer(std::make_unique<UILayer>(m_layerManager.get()));
-#ifdef SANDBOX_APP
-    m_layerManager->insertNewLayer(std::make_unique<SandboxLayer>(m_layerManager.get()));
 #endif
-    m_layerManager->insertNewLayer(std::make_unique<GameOfLife>(m_layerManager.get()));
+    
+#ifdef SANDBOX_APP
+    m_gameLayer = m_layerManager->insertNewLayer(
+        std::make_unique<SandboxLayer>(m_layerManager.get()));
+#endif
+    
+    m_gameLayer = m_layerManager->insertNewLayer(
+        std::make_unique<GameOfLife>(m_layerManager.get()));
 }
 
 Application::~Application()
@@ -31,18 +46,52 @@ Application::~Application()
 
 void Application::run()
 {
+    bool hasEvents = true;
     while (m_isRunning) {
         float time = static_cast<float>(glfwGetTime());
         float deltaTime = time - m_lastTime;
         m_lastTime = time;
 
+        hasEvents = true;
+        
         if (glfwWindowShouldClose(m_window->window())) {
             m_isRunning = false;
         }
         
         m_layerManager->updateLayers(deltaTime);
         m_layerManager->renderLayers();
+
+        while (hasEvents) {
+            // const auto& [event, isEmpty ] = m_window->fetchWindowEvent();
+            auto fetchedEvent = m_window->fetchWindowEvent();
+            
+            if (fetchedEvent.second) { hasEvents = false; }
+            onEvent(fetchedEvent.first);
+        }
         
         m_window->onUpdate();
+    }
+}
+
+void Application::onEvent(Event& e)
+{
+    if (e.type() == EventType::WindowResize) {
+        auto values = e.windowValues();
+        TemporaryRenderer::handleResize(values.first, values.second);
+    }
+
+    // This is (at least for now) implented since glfwWindowShouldClose
+    // works for now.
+    if (e.type() == EventType::WindowClose) {
+    }
+
+    if (e.type() == EventType::KeyPressed) {
+        if (e.keyValue() == GLFW_KEY_ESCAPE) {
+            m_isRunning = false;
+        }
+    }
+    
+    if (m_gameLayer) {
+        m_layerManager->sendEventToLayer(m_gameLayer, e);
     }
 }

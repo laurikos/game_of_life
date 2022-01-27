@@ -1,25 +1,20 @@
-/*
- * Should be OpenGLContext
- * Loads the glad as version > 3.x OpenGL API handler.
- */
-
-#include "WindowContext.h"
+#include "OpenGLContext.h"
 #include <stdio.h>
 #include <assert.h>
 #include <cstdlib>
 
-WindowContext::WindowContext(GLFWwindow* window)
+OpenGLContext::OpenGLContext(GLFWwindow* window)
     : m_windowHandle(window)
 {
 
 }
 
-WindowContext::~WindowContext()
+OpenGLContext::~OpenGLContext()
 {
     
 }
 
-void WindowContext::init()
+void OpenGLContext::init()
 {
     assert(m_windowHandle && "failed to fetch GLFWwindow handle");
     glfwMakeContextCurrent(m_windowHandle);
@@ -34,7 +29,7 @@ void WindowContext::init()
     printf("OpenGL Version:   %s\n", glGetString(GL_VERSION));
 }
 
-void WindowContext::swapBuffers()
+void OpenGLContext::swapBuffers()
 {
     glfwSwapBuffers(m_windowHandle);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Layer.h"
+#include "Events.h"
 
 #include <memory>
 
@@ -17,10 +18,12 @@ public:
     std::uint32_t getWindowWidth() const;
 
     GLFWwindow* getWindow() const;
-
+    
     Layer* insertNewLayer(std::unique_ptr<Layer> layer);
     void updateLayers(float deltaTime);
     void renderLayers();
+    
+    void sendEventToLayer(Layer* layer, Event& event);
     
 private:
     struct PImpl;

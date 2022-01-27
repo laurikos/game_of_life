@@ -1,4 +1,5 @@
 #pragma once
+#include "Events.h"
 
 #include <memory>
 #include <string>
@@ -20,7 +21,7 @@ public:
     std::uint32_t width() const; 
     
     GLFWwindow* window() const;
-    
+    std::pair<Event, bool> fetchWindowEvent(); // use std::reference_wrapper ?    
 private:
     struct PImpl;
     std::unique_ptr<PImpl> m_pImpl;

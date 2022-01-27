@@ -90,3 +90,8 @@ void LayerManager::renderLayers()
 
     m_pImpl->m_uiLayer->endSceneUI(); 
 }
+
+void LayerManager::sendEventToLayer(Layer* layer, Event& event)
+{
+    layer->onEvent(event);
+}
