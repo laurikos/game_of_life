@@ -16,7 +16,8 @@ struct GameOfLife::PImpl {
     std::unique_ptr<CameraController> m_camera;
 
     std::vector<std::vector<std::uint32_t>> m_cellState;
-
+    std::vector<std::vector<std::uint32_t>> m_cellStateSwp;
+    
     GameMode m_gameMode;
     bool m_nextStep;
     
@@ -58,6 +59,7 @@ void GameOfLife::PImpl::init()
     m_gameMode = GameMode::Manual;
     m_nextStep = false;
     initGameState(100, 100);
+    // initGameStateFromTestboard();
 }
 
 void GameOfLife::PImpl::onUpdate(float deltaTime)
@@ -158,7 +160,8 @@ void GameOfLife::PImpl::onEvent(Event& e)
 void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
 {
     m_cellState = std::vector(lenY, std::vector<std::uint32_t>(lenX));
-
+    m_cellStateSwp = std::vector(lenY, std::vector<std::uint32_t>(lenX));
+    
     m_lenX = lenX;
     m_lenY = lenY;
     // Start with cell one:
@@ -182,6 +185,50 @@ void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
 
 void GameOfLife::PImpl::initGameStateFromTestboard()
 {
+
+    std::uint16_t testb[20][20] = {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    
+
+    
+    std::uint32_t lenX = 20;
+    std::uint32_t lenY = 20;
+    m_lenX = lenX;
+    m_lenY = lenY;
+
+    m_cellState = std::vector(lenY, std::vector<std::uint32_t>(lenX));
+    m_cellStateSwp = std::vector(lenY, std::vector<std::uint32_t>(lenX));
+
+    
+    for (std::uint32_t y = 0; y < lenY; ++y) {
+        
+        for (std::uint32_t x = 0; x < lenX; ++x) {
+
+            m_cellState[y][x] = testb[y][x];
+            
+        }
+
+    }
 }
 
 void GameOfLife::PImpl::checkCells()
@@ -205,7 +252,8 @@ void GameOfLife::PImpl::checkCells()
             hasBottom = true;    
 
             currCell = m_cellState.at(y).at(x);
-
+            m_cellStateSwp[y][x] = currCell;
+            
             if (y == 0) {
                 hasTop = false;
             }
@@ -251,16 +299,19 @@ void GameOfLife::PImpl::checkCells()
             if (currCell) {
                 
                 if (numNeighbors < 2) {
-                    m_cellState[y][x] = 0;
+                    // m_cellState[y][x] = 0;
+                    m_cellStateSwp[y][x] = 0;
                 }
                 if (numNeighbors > 3) {
-                    m_cellState[y][x] = 0;
+                    // m_cellState[y][x] = 0;
+                    m_cellStateSwp[y][x] = 0;
                 }
                 
             } else {
 
                 if (numNeighbors == 3) {
-                    m_cellState[y][x] = 1;
+                    // m_cellState[y][x] = 1;
+                    m_cellStateSwp[y][x] = 1;
                 }
                 
             }
@@ -268,6 +319,13 @@ void GameOfLife::PImpl::checkCells()
         }
 
     }
+
+    for (std::uint32_t swpRow = 0; swpRow < m_lenY; swpRow++) {
+        std::vector<std::uint32_t>& rowOld = m_cellState[swpRow];
+        std::vector<std::uint32_t>& rowNew = m_cellStateSwp[swpRow];
+        rowOld.swap(rowNew);        
+    }
+    
 }
 
 void GameOfLife::PImpl::handleNextStep()
