@@ -9,6 +9,7 @@ enum class EventType {
     KeyReleased,
     MouseMoved,
     MouseScrolled,
+    MouseClicked,
     NEvents
 };
 

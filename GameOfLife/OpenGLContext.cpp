@@ -27,6 +27,7 @@ void OpenGLContext::init()
     printf("OpenGL Vendor:    %s\n", glGetString(GL_VENDOR));
     printf("OpenGL Renderer:  %s\n", glGetString(GL_RENDERER));
     printf("OpenGL Version:   %s\n", glGetString(GL_VERSION));
+    printf("\n\n");
 }
 
 void OpenGLContext::swapBuffers()

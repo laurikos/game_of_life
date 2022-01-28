@@ -7,23 +7,21 @@ Event::Event(EventType type, int xInt, int yInt, int zInt, float xFloat, float y
         if (type == EventType::WindowClose) {
             // TODO: handle if needed.
         }
-
-        if (type == EventType::WindowResize) {
+        else if (type == EventType::WindowResize) {
             m_width = xInt;
             m_height = yInt;
         }
-        
-        if (type == EventType::KeyPressed) {
+        else if (type == EventType::KeyPressed) {
             m_key = xInt;
         }
-
-        if (type == EventType::KeyReleased) {
+        else if (type == EventType::KeyReleased) {
             m_key = xInt;
         }
-
-        if (type == EventType::MouseMoved || type == EventType::MouseScrolled) {
+        else if (type == EventType::MouseMoved || type == EventType::MouseScrolled) {
             m_mouseX = xFloat;
             m_mouseY = yFloat;
+        } else if (type == EventType::MouseClicked) {
+            m_key = xInt;
         }
 }
 

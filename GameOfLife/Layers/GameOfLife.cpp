@@ -13,6 +13,7 @@
 struct GameOfLife::PImpl {
     GameOfLife& m_parent;
     LayerManager* m_manager;
+    float m_initialZoomLevel;
     std::unique_ptr<CameraController> m_camera;
 
     std::vector<std::vector<std::uint32_t>> m_cellState;
@@ -23,8 +24,14 @@ struct GameOfLife::PImpl {
     
     std::uint32_t m_lenY;
     std::uint32_t m_lenX;
+
+    float m_lastCursorXPos = 0.0f;
+    float m_lastCursorYPos = 0.0f;
+    float m_lastCursorYPosFixed = 0.0f;
+    float m_lastCursorXPosFixed = 0.0f;
+    float m_mouseClicked = false;
     
-    PImpl(GameOfLife& parent, LayerManager* manager);
+    PImpl(GameOfLife& parent, LayerManager* manager, float initialZoomLevel);
     ~PImpl();
 
     void init();
@@ -41,10 +48,10 @@ struct GameOfLife::PImpl {
     void handleNextStep();
 };
 
-GameOfLife::PImpl::PImpl(GameOfLife& parent, LayerManager* manager)
+GameOfLife::PImpl::PImpl(GameOfLife& parent, LayerManager* manager, float initialZoomLevel)
     : m_parent(parent),
       m_manager(manager),
-      m_camera(std::make_unique<CameraController>((1280.0f / 720.0f), 5.0f))
+      m_camera(std::make_unique<CameraController>((1280.0f / 720.0f), initialZoomLevel))
 {
     m_camera->getCamera().setPosition({ 0.0f, 0.0f, 0.0f });
 }
@@ -58,8 +65,9 @@ void GameOfLife::PImpl::init()
 {
     m_gameMode = GameMode::Manual;
     m_nextStep = false;
-    initGameState(100, 100);
-    // initGameStateFromTestboard();
+    // initGameState(100, 100);
+    // initGameState(70, 130);
+    initGameStateFromTestboard();
 }
 
 void GameOfLife::PImpl::onUpdate(float deltaTime)
@@ -83,16 +91,39 @@ void GameOfLife::PImpl::onUpdate(float deltaTime)
         for (std::uint32_t j = 0; j < m_lenX; ++j) {
 
             posX = positionFixX + j;
+
+            // if ((i == 0) && (j == 0)) {
+            //     printf("FIRST QUAD AT (x: %d, y:%d)\n", posX, posY);
+            // }
+            // if ((i == m_lenY - 1) && (j == m_lenX - 1)) {
+            //     printf("LAST QUAD AT (x: %d, y:%d)\n", posX, posY);
+            // }
+
+            if (m_mouseClicked) {
+                
+                m_mouseClicked = false;
+                TemporaryRenderer::drawQuad({ m_lastCursorYPosFixed, m_lastCursorXPosFixed, 1.0f },
+                                            { 0.8f, 0.8f },
+                                            { 0.27f, 0.17f, 0.87f, 1.0f});
+            }
+
             
             if (m_cellState.at(i).at(j)) {
-
-                TemporaryRenderer::drawQuad({ (posY/10.0f), (posX/10.0f), 0.0f },
-                                            { 0.08f, 0.08f },
+                TemporaryRenderer::drawQuad({ posY, posX, 0.0f },
+                                            { 0.8f, 0.8f },
                                             { 0.67f, 0.17f, 0.27f, 1.0f});
-            } else {
+            }
+            // else if (m_mouseClicked) {
                 
-                TemporaryRenderer::drawQuad({ (posY/10.0f), (posX/10.0f), 0.0f },
-                                            { 0.08f, 0.08f },
+            //     m_mouseClicked = false;
+            //     TemporaryRenderer::drawQuad({ m_lastCursorYPosFixed, m_lastCursorXPosFixed, 1.0f },
+            //                                 { 0.8f, 0.8f },
+            //                                 { 0.27f, 0.17f, 0.87f, 1.0f});
+            // }
+            else {
+                
+                TemporaryRenderer::drawQuad({ posY, posX, 0.0f },
+                                            { 0.8f, 0.8f },
                                             { 0.2f, 0.2f, 0.2f, 1.0f});
             }
         }
@@ -136,6 +167,7 @@ void GameOfLife::PImpl::onEvent(Event& e)
     }
     
     if (e.type() == EventType::KeyPressed) {
+        
         if (e.keyValue() == GLFW_KEY_X) {
 
             m_nextStep = true;
@@ -146,14 +178,47 @@ void GameOfLife::PImpl::onEvent(Event& e)
                 m_gameMode = GameMode::Manual;
             } else {
                 m_gameMode = GameMode::Auto;
-            }
-            
+            }            
         }
+        
+    }
+
+    if (e.type() == EventType::MouseMoved) {
+        const auto& fetchedValues = e.mouseValues();
+        m_lastCursorXPos = fetchedValues.first;
+        m_lastCursorYPos = fetchedValues.second;
+        // If mouse goes outside of window; can user click mousebutton?
+        // maybe come back to this if, again, ever needed...
     }
 
     if (e.type() == EventType::MouseScrolled) {
-        // m_camera->onEvent(e);
+        m_camera->onEvent(e);
         // This did not work for whatever reason. come back to it if needed..        
+    }
+
+    if (e.type() == EventType::MouseClicked) {
+        // Does not matter what which mouse key was pressed ?
+        // Just go with left mouse button for now.
+        if (e.keyValue() == GLFW_MOUSE_BUTTON_LEFT) {
+            printf("mouse_click at (x: %.4f, y: %.4f)\n",
+                   m_lastCursorXPos, m_lastCursorYPos);
+            // float ap = (1280.0f / 720.0f);
+            // float tx = (((m_lastCursorXPos / 720) * 2) - 1) * 20.0f;
+            // float ty = (((m_lastCursorYPos / 720) * 2) - 1) * 20.0f * ap;
+
+            // unsigned char pixel[4];
+            // glReadPixels(m_lastCursorXPos, m_lastCursorXPos, 1, 1, GL_RGBA,
+            //              GL_UNSIGNED_BYTE, &pixel);
+            // printf("%d %d %d %d\n", pixel[ 0 ], pixel[ 1 ], pixel[ 2 ],
+            //        pixel[ 3 ]);
+
+            // printf("mouse_click_tansl (x: %.4f, y: %.4f)\n",
+            //        tx, ty);
+            // m_lastCursorYPosFixed = ty;
+            // m_lastCursorXPosFixed = tx;
+            
+            m_mouseClicked = true;
+        }
     }
 }
 
@@ -299,18 +364,15 @@ void GameOfLife::PImpl::checkCells()
             if (currCell) {
                 
                 if (numNeighbors < 2) {
-                    // m_cellState[y][x] = 0;
                     m_cellStateSwp[y][x] = 0;
                 }
                 if (numNeighbors > 3) {
-                    // m_cellState[y][x] = 0;
                     m_cellStateSwp[y][x] = 0;
                 }
                 
             } else {
 
                 if (numNeighbors == 3) {
-                    // m_cellState[y][x] = 1;
                     m_cellStateSwp[y][x] = 1;
                 }
                 
@@ -323,7 +385,7 @@ void GameOfLife::PImpl::checkCells()
     for (std::uint32_t swpRow = 0; swpRow < m_lenY; swpRow++) {
         std::vector<std::uint32_t>& rowOld = m_cellState[swpRow];
         std::vector<std::uint32_t>& rowNew = m_cellStateSwp[swpRow];
-        rowOld.swap(rowNew);        
+        rowOld.swap(rowNew);
     }
     
 }
@@ -335,7 +397,7 @@ void GameOfLife::PImpl::handleNextStep()
 }
 
 GameOfLife::GameOfLife(LayerManager* manager)
-    : m_pImpl(std::make_unique<PImpl>(*this, manager))
+    : m_pImpl(std::make_unique<PImpl>(*this, manager, 15.0f))
 {
     
 }

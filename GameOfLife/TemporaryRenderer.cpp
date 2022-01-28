@@ -70,7 +70,7 @@ void TemporaryRenderer::init()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glEnable(GL_DEPTH_TEST);
-
+    
     s_data.vao = std::make_shared<VAO>();
     s_data.vbo = std::make_shared<VBO>(s_data.maxVertices * sizeof(QuadVertex));
 
@@ -192,6 +192,7 @@ void TemporaryRenderer::execute(const std::shared_ptr<VAO>& vao,
         vao->getIBO()->indicesCount() :
         indexCount;
 
+    vao->bind();
     // printf("[TemporaryRenderer::execute] count ==> %d\n", count);
     // printf("\tvao->getIBO()->indicesCount(): %d\n", vao->getIBO()->indicesCount());
     // printf("\tindexCount:                    %d\n", indexCount);

@@ -54,7 +54,7 @@ Camera::~Camera()
 
 void Camera::setProjection(float left, float right, float bottom, float top)
 {
-    m_pImpl->m_projectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, -1.0f);
+    m_pImpl->m_projectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
     m_pImpl->m_viewProjectionMatrix = m_pImpl->m_projectionMatrix * m_pImpl->m_viewMatrix;
 }
 

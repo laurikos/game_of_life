@@ -7,7 +7,7 @@ struct CameraController::PImpl {
     CameraController& m_parent;
 
     float m_aspectRatio;
-    float m_zoomLevel = 1.0f;
+    float m_zoomLevel;
     Camera m_camera;
 
     glm::vec3 m_cameraPosition = { 0.0f, 0.0f, 0.0f };
@@ -36,9 +36,10 @@ CameraController::PImpl::PImpl(CameraController& parent,
       m_camera(
           ((-1)* m_aspectRatio) * m_zoomLevel,
           m_aspectRatio * m_zoomLevel,
-          (-1) * m_zoomLevel, m_zoomLevel)
+          (-1) * m_zoomLevel,
+          m_zoomLevel)
 {
-
+    printf("[CameraController] Initial zoom level set to: %.2f\n", m_zoomLevel);
 }
 
 CameraController::PImpl::~PImpl()
@@ -60,10 +61,8 @@ CameraController::~CameraController()
 void CameraController::PImpl::onMouseScrolled(Event& e)
 {
     m_zoomLevel -= e.mouseValues().second * 0.05f;
+    m_zoomLevel = std::max(m_zoomLevel, 0.5f);
 
-    printf("[CameraController::PImpl::onMouseScrolled] (%.2f, %.2f) zoom: %.2f\n",
-           e.mouseValues().first, e.mouseValues().second, m_zoomLevel);
-    
     m_camera.setProjection(
         ((-1) * m_aspectRatio) * m_zoomLevel,
         m_aspectRatio * m_zoomLevel,
@@ -97,7 +96,7 @@ void CameraController::PImpl::onUpdate(float deltaTime)
     if (m_moveDown) {
         m_cameraPosition.y -= m_cameraMoveSpd * deltaTime;
     }
-        
+
     m_camera.setPosition(m_cameraPosition);
     m_cameraMoveSpd = m_zoomLevel;
 }

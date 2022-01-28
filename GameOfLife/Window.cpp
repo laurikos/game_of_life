@@ -146,10 +146,22 @@ void Window::PImpl::init(const std::string& title,
         auto& winUsrPtr =
             *static_cast<WindowConfigs*>(glfwGetWindowUserPointer(window));
 
-        Event event(EventType::MouseMoved, 0, 0, 0,
-                    static_cast<float>(xPos), static_cast<float>(yPos));
-        winUsrPtr.eventCallback(event);
+        Event e(EventType::MouseMoved, 0, 0, 0,
+                static_cast<float>(xPos), static_cast<float>(yPos));
+        winUsrPtr.eventCallback(e);
     });
+
+    glfwSetMouseButtonCallback(
+        m_window.get(),
+        [](GLFWwindow* window, int button, int action, int modes) {
+            auto& winUsrPtr =
+                *static_cast<WindowConfigs*>(glfwGetWindowUserPointer(window));
+
+            if (action == GLFW_PRESS) {
+                Event e(EventType::MouseClicked, button);
+                winUsrPtr.eventCallback(e);
+            }
+        });
 }
 
 void Window::PImpl::eventCallBackFunc(Event& e)

@@ -25,7 +25,7 @@ Application::Application()
     m_gameLayer = m_layerManager->insertNewLayer(
         std::make_unique<SandboxLayer>(m_layerManager.get()));
 #endif
-    
+
     m_gameLayer = m_layerManager->insertNewLayer(
         std::make_unique<GameOfLife>(m_layerManager.get()));
 }
