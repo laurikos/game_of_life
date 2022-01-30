@@ -2,6 +2,7 @@
 #include "TemporaryRenderer.h"
 #include "Layers/UILayer.h"
 #include "Layers/SandboxLayer.h"
+#include "Layers/GameOfLifeSetup.h"
 #include "Layers/GameOfLife.h"
 #include "Window.h"
 #include "LayerManager.h"
@@ -26,8 +27,10 @@ Application::Application()
         std::make_unique<SandboxLayer>(m_layerManager.get()));
 #endif
 
-    m_gameLayer = m_layerManager->insertNewLayer(
-        std::make_unique<GameOfLife>(m_layerManager.get()));
+    m_layerManager->insertNewLayer(std::make_unique<GameOfLifeSetup>(m_layerManager.get()));
+    
+    // m_gameLayer = m_layerManager->insertNewLayer(
+    //     std::make_unique<GameOfLife>(m_layerManager.get()));
 }
 
 Application::~Application()
@@ -48,6 +51,10 @@ void Application::run()
         if (glfwWindowShouldClose(m_window->window())) {
             m_isRunning = false;
         }
+
+        if (m_layerManager->isGameLayerInitialized()) {
+            m_gameLayer = m_layerManager->gameLayer();
+        }
         
         m_layerManager->updateLayers(deltaTime);
         m_layerManager->renderLayers();
@@ -60,6 +67,7 @@ void Application::run()
         }
         
         m_window->onUpdate();
+
     }
 }
 

@@ -60,7 +60,7 @@ CameraController::~CameraController()
 
 void CameraController::PImpl::onMouseScrolled(Event& e)
 {
-    m_zoomLevel -= e.mouseValues().second * 0.05f;
+    m_zoomLevel -= e.mouseValues().second * 0.25f;
     m_zoomLevel = std::max(m_zoomLevel, 0.5f);
 
     m_camera.setProjection(

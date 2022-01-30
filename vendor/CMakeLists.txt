@@ -24,6 +24,8 @@ set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
 # file(COPY imgui/backends/imgui_impl_opengl3.h DESTINATION imgui/)
 # file(COPY imgui/backends/imgui_impl_opengl3_loader.h DESTINATION imgui/)
 
+# set(IMGUI_BACKENDS imgui/backends)
+# include_directories(${IMGUI_BACKENDS})
 add_subdirectory(imgui)
 
 add_subdirectory(glm)

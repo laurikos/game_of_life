@@ -18,7 +18,8 @@ struct GameOfLife::PImpl {
 
     std::vector<std::vector<std::uint32_t>> m_cellState;
     std::vector<std::vector<std::uint32_t>> m_cellStateSwp;
-    
+
+    bool m_isInitialized;
     GameMode m_gameMode;
     bool m_nextStep;
     
@@ -31,7 +32,8 @@ struct GameOfLife::PImpl {
     float m_lastCursorXPosFixed = 0.0f;
     float m_mouseClicked = false;
     
-    PImpl(GameOfLife& parent, LayerManager* manager, float initialZoomLevel);
+    PImpl(GameOfLife& parent, LayerManager* manager, float initialZoomLevel,
+          const std::vector<std::vector<std::uint32_t>>& initState);
     ~PImpl();
 
     void init();
@@ -44,16 +46,26 @@ struct GameOfLife::PImpl {
 
     void initGameState(std::size_t lenX, std::size_t lenY);
     void initGameStateFromTestboard();
+    void initGameStateFromSetupUI();
+    
     void checkCells();
     void handleNextStep();
 };
 
-GameOfLife::PImpl::PImpl(GameOfLife& parent, LayerManager* manager, float initialZoomLevel)
+GameOfLife::PImpl::PImpl(
+    GameOfLife& parent, LayerManager* manager, float initialZoomLevel,
+    const std::vector<std::vector<std::uint32_t>>& initState)
     : m_parent(parent),
       m_manager(manager),
-      m_camera(std::make_unique<CameraController>((1280.0f / 720.0f), initialZoomLevel))
+      m_camera(std::make_unique<CameraController>((1280.0f / 720.0f),
+                                                  initialZoomLevel))
 {
+    m_isInitialized = false;
     m_camera->getCamera().setPosition({ 0.0f, 0.0f, 0.0f });
+    if (initState.size() > 1) {
+        m_cellState = initState;
+        initGameStateFromSetupUI();
+    }
 }
 
 GameOfLife::PImpl::~PImpl()
@@ -67,7 +79,7 @@ void GameOfLife::PImpl::init()
     m_nextStep = false;
     // initGameState(100, 100);
     // initGameState(70, 130);
-    initGameStateFromTestboard();
+    // initGameStateFromTestboard();
 }
 
 void GameOfLife::PImpl::onUpdate(float deltaTime)
@@ -92,34 +104,19 @@ void GameOfLife::PImpl::onUpdate(float deltaTime)
 
             posX = positionFixX + j;
 
-            // if ((i == 0) && (j == 0)) {
-            //     printf("FIRST QUAD AT (x: %d, y:%d)\n", posX, posY);
-            // }
-            // if ((i == m_lenY - 1) && (j == m_lenX - 1)) {
-            //     printf("LAST QUAD AT (x: %d, y:%d)\n", posX, posY);
-            // }
-
             if (m_mouseClicked) {
-                
                 m_mouseClicked = false;
-                TemporaryRenderer::drawQuad({ m_lastCursorYPosFixed, m_lastCursorXPosFixed, 1.0f },
-                                            { 0.8f, 0.8f },
-                                            { 0.27f, 0.17f, 0.87f, 1.0f});
+            //     TemporaryRenderer::drawQuad(
+            //         {m_lastCursorYPosFixed, m_lastCursorXPosFixed, 1.0f},
+            //         {0.8f, 0.8f}, {0.27f, 0.17f, 0.87f, 1.0f});
             }
 
-            
             if (m_cellState.at(i).at(j)) {
                 TemporaryRenderer::drawQuad({ posY, posX, 0.0f },
                                             { 0.8f, 0.8f },
                                             { 0.67f, 0.17f, 0.27f, 1.0f});
             }
-            // else if (m_mouseClicked) {
-                
-            //     m_mouseClicked = false;
-            //     TemporaryRenderer::drawQuad({ m_lastCursorYPosFixed, m_lastCursorXPosFixed, 1.0f },
-            //                                 { 0.8f, 0.8f },
-            //                                 { 0.27f, 0.17f, 0.87f, 1.0f});
-            // }
+            
             else {
                 
                 TemporaryRenderer::drawQuad({ posY, posX, 0.0f },
@@ -193,29 +190,21 @@ void GameOfLife::PImpl::onEvent(Event& e)
 
     if (e.type() == EventType::MouseScrolled) {
         m_camera->onEvent(e);
-        // This did not work for whatever reason. come back to it if needed..        
     }
 
     if (e.type() == EventType::MouseClicked) {
-        // Does not matter what which mouse key was pressed ?
-        // Just go with left mouse button for now.
+        // This does not work and will require modifications to rendering.
         if (e.keyValue() == GLFW_MOUSE_BUTTON_LEFT) {
-            printf("mouse_click at (x: %.4f, y: %.4f)\n",
-                   m_lastCursorXPos, m_lastCursorYPos);
-            // float ap = (1280.0f / 720.0f);
-            // float tx = (((m_lastCursorXPos / 720) * 2) - 1) * 20.0f;
-            // float ty = (((m_lastCursorYPos / 720) * 2) - 1) * 20.0f * ap;
+            // printf("mouse_click at (x: %.4f, y: %.4f)\n",
+            //        m_lastCursorXPos, m_lastCursorYPos);
 
-            // unsigned char pixel[4];
-            // glReadPixels(m_lastCursorXPos, m_lastCursorXPos, 1, 1, GL_RGBA,
-            //              GL_UNSIGNED_BYTE, &pixel);
-            // printf("%d %d %d %d\n", pixel[ 0 ], pixel[ 1 ], pixel[ 2 ],
-            //        pixel[ 3 ]);
-
+            float tx = (((m_lastCursorXPos / (1280.0f / 2.0f))) - 1.0f) * 10.0f;
+            float ty =  -1.0f * ((m_lastCursorYPos / (720.0f / 2.0f)) - 1.0f) * 10.0f;
+            
             // printf("mouse_click_tansl (x: %.4f, y: %.4f)\n",
             //        tx, ty);
-            // m_lastCursorYPosFixed = ty;
-            // m_lastCursorXPosFixed = tx;
+            m_lastCursorYPosFixed = ty;
+            m_lastCursorXPosFixed = tx;
             
             m_mouseClicked = true;
         }
@@ -295,6 +284,15 @@ void GameOfLife::PImpl::initGameStateFromTestboard()
 
     }
 }
+
+void GameOfLife::PImpl::initGameStateFromSetupUI()
+{
+        
+    m_lenX = m_cellState[0].size();
+    m_lenY = m_cellState.size();
+    m_cellStateSwp = std::vector(m_lenY, std::vector<std::uint32_t>(m_lenX));    
+}
+
 
 void GameOfLife::PImpl::checkCells()
 {
@@ -396,10 +394,10 @@ void GameOfLife::PImpl::handleNextStep()
     m_nextStep = false;
 }
 
-GameOfLife::GameOfLife(LayerManager* manager)
-    : m_pImpl(std::make_unique<PImpl>(*this, manager, 15.0f))
-{
-    
+GameOfLife::GameOfLife(LayerManager* manager,
+                       const std::vector<std::vector<std::uint32_t>>& initState)
+    : m_pImpl(std::make_unique<PImpl>(*this, manager, 25.0f, initState))
+{    
 }
 
 GameOfLife::~GameOfLife()
@@ -425,4 +423,9 @@ void GameOfLife::onRender()
 void GameOfLife::onEvent(Event& e)
 {
     m_pImpl->onEvent(e);
+}
+
+void GameOfLife::initializedFromSetup()
+{
+    m_pImpl->m_isInitialized = true;
 }

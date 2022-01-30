@@ -1,6 +1,7 @@
 #include "LayerManager.h"
 #include "Window.h"
 #include "Layers/UILayer.h"
+#include "Layers/GameOfLife.h"
 
 #include <vector>
 
@@ -10,17 +11,21 @@ struct LayerManager::PImpl {
 
     std::vector<std::unique_ptr<Layer>> m_layers;    
     UILayer* m_uiLayer = nullptr;
+    Layer* m_gameLayer = nullptr;
+    bool m_isGameLayerInitialized;
+
     PImpl(LayerManager& parent, const std::shared_ptr<Window> window);
     ~PImpl();
 
     Layer* addLayer(std::unique_ptr<Layer> layer);
+
 };
 
 LayerManager::PImpl::PImpl(LayerManager& parent, const std::shared_ptr<Window> window)
     : m_parent(parent),
-      m_window(window)
+      m_window(window),
+      m_isGameLayerInitialized(false)
 {
-    
 }
 
 LayerManager::PImpl::~PImpl()
@@ -94,4 +99,21 @@ void LayerManager::renderLayers()
 void LayerManager::sendEventToLayer(Layer* layer, Event& event)
 {
     layer->onEvent(event);
+}
+
+Layer* LayerManager::settingUpDone(const std::vector<std::vector<std::uint32_t>>& initState)
+{
+    m_pImpl->m_isGameLayerInitialized = true;
+    m_pImpl->m_gameLayer = insertNewLayer(std::make_unique<GameOfLife>(this, initState));
+    return m_pImpl->m_gameLayer;
+}
+
+bool LayerManager::isGameLayerInitialized() const
+{
+    return m_pImpl->m_isGameLayerInitialized;
+}
+
+Layer* LayerManager::gameLayer()
+{
+    return m_pImpl->m_gameLayer;
 }

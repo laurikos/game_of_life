@@ -48,8 +48,8 @@ void UILayer::PImpl::init()
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -57,7 +57,7 @@ void UILayer::PImpl::init()
     // When viewports are enabled we tweak WindowRounding/WindowBg
     // so platform windows can look identical to regular ones.
     ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    if (io.ConfigFlags/* & ImGuiConfigFlags_ViewportsEnable*/)
     {
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
@@ -104,9 +104,24 @@ void UILayer::PImpl::onUpdate(float deltaTime)
 
 void UILayer::PImpl::onRender()
 {
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("This is some useful text.");
-    ImGui::End();
+    // ImGui::Begin("Hello, world!");
+    // ImGui::Text("This is some useful text.");
+    // ImGui::End();
+    // ImGui::Begin("Setup");    
+    // ImGui::End();
+    // ImGui::ShowDemoWindow();
+        // for (int i = 0; i < 7; i++)
+        // {
+        //     if (i > 0)
+        //         ImGui::SameLine();
+        //     ImGui::PushID(i);
+        //     ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(i / 7.0f, 0.6f, 0.6f));
+        //     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(i / 7.0f, 0.7f, 0.7f));
+        //     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(i / 7.0f, 0.8f, 0.8f));
+        //     ImGui::Button("Click");
+        //     ImGui::PopStyleColor(3);
+        //     ImGui::PopID();
+        // }
 }
 
 void UILayer::PImpl::startSceneUI()
@@ -124,11 +139,11 @@ void UILayer::PImpl::endSceneUI()
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    if (io.ConfigFlags /*& ImGuiConfigFlags_ViewportsEnable*/)
     {
         GLFWwindow* backup_current_context = glfwGetCurrentContext();
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
+        // ImGui::UpdatePlatformWindows();
+        // ImGui::RenderPlatformWindowsDefault();
         glfwMakeContextCurrent(backup_current_context);
     }    
 }

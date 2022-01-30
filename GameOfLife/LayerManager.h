@@ -3,6 +3,7 @@
 #include "Layer.h"
 #include "Events.h"
 
+#include <vector>
 #include <memory>
 
 class Window;
@@ -24,6 +25,10 @@ public:
     void renderLayers();
     
     void sendEventToLayer(Layer* layer, Event& event);
+
+    Layer* settingUpDone(const std::vector<std::vector<std::uint32_t>>& initState);
+    bool isGameLayerInitialized() const;
+    Layer* gameLayer();
     
 private:
     struct PImpl;
