@@ -27,10 +27,8 @@ Application::Application()
         std::make_unique<SandboxLayer>(m_layerManager.get()));
 #endif
 
-    m_layerManager->insertNewLayer(std::make_unique<GameOfLifeSetup>(m_layerManager.get()));
-    
-    // m_gameLayer = m_layerManager->insertNewLayer(
-    //     std::make_unique<GameOfLife>(m_layerManager.get()));
+    m_gameSetupLayer =
+        m_layerManager->insertNewLayer(std::make_unique<GameOfLifeSetup>(m_layerManager.get()));
 }
 
 Application::~Application()
@@ -75,7 +73,8 @@ void Application::onEvent(Event& e)
 {
     if (e.type() == EventType::WindowResize) {
         auto values = e.windowValues();
-        TemporaryRenderer::handleResize(values.first, values.second);        
+        TemporaryRenderer::handleResize(values.first, values.second);
+        m_layerManager->sendEventToLayer(m_gameSetupLayer, e);
     }
 
     // This is (at least for now) implented since glfwWindowShouldClose

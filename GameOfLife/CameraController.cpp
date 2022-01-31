@@ -39,7 +39,9 @@ CameraController::PImpl::PImpl(CameraController& parent,
           (-1) * m_zoomLevel,
           m_zoomLevel)
 {
+#ifdef Debug
     printf("[CameraController] Initial zoom level set to: %.2f\n", m_zoomLevel);
+#endif
 }
 
 CameraController::PImpl::~PImpl()

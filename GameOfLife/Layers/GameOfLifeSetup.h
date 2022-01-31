@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Events.h"
 #include "../Layer.h"
 #include <memory>
 
@@ -14,7 +15,8 @@ public:
     virtual void init() override;
     virtual void onUpdate(float deltaTime) override;
     virtual void onRender() override;
-
+    virtual void onEvent(Event& e) override;
+    
     virtual bool isImGuiLayer() override { return true; }
     
     void startSceneUI();

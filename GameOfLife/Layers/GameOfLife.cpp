@@ -44,8 +44,7 @@ struct GameOfLife::PImpl {
     void startSceneUI();
     void endSceneUI();
 
-    void initGameState(std::size_t lenX, std::size_t lenY);
-    void initGameStateFromTestboard();
+    void initGameStateRandom(std::size_t lenX, std::size_t lenY);
     void initGameStateFromSetupUI();
     
     void checkCells();
@@ -77,9 +76,6 @@ void GameOfLife::PImpl::init()
 {
     m_gameMode = GameMode::Manual;
     m_nextStep = false;
-    // initGameState(100, 100);
-    // initGameState(70, 130);
-    // initGameStateFromTestboard();
 }
 
 void GameOfLife::PImpl::onUpdate(float deltaTime)
@@ -90,28 +86,27 @@ void GameOfLife::PImpl::onUpdate(float deltaTime)
     TemporaryRenderer::clear();
 
     TemporaryRenderer::start(m_camera->getCamera());
-    
+
+    // To have everything drawn around (0, 0, 0)
     std::int32_t positionFixX = (-1) * (m_lenX / 2.0f);
     std::int32_t positionFixY = (-1) * (m_lenY / 2.0f);
     std::int32_t posX;
     std::int32_t posY;
     
-    for (std::uint32_t i = 0; i < m_lenY; ++i) {
+    for (std::uint32_t y = 0; y < m_lenY; y++) {
 
-        posY = positionFixY + i;
+        posY = positionFixY + y;
         
-        for (std::uint32_t j = 0; j < m_lenX; ++j) {
+        for (std::uint32_t x = 0; x < m_lenX; x++) {
 
-            posX = positionFixX + j;
-
+            posX = positionFixX + x;
+            
             if (m_mouseClicked) {
                 m_mouseClicked = false;
-            //     TemporaryRenderer::drawQuad(
-            //         {m_lastCursorYPosFixed, m_lastCursorXPosFixed, 1.0f},
-            //         {0.8f, 0.8f}, {0.27f, 0.17f, 0.87f, 1.0f});
             }
 
-            if (m_cellState.at(i).at(j)) {
+            if (m_cellState.at(y).at(x)) {
+
                 TemporaryRenderer::drawQuad({ posY, posX, 0.0f },
                                             { 0.8f, 0.8f },
                                             { 0.67f, 0.17f, 0.27f, 1.0f});
@@ -169,6 +164,14 @@ void GameOfLife::PImpl::onEvent(Event& e)
 
             m_nextStep = true;
         }
+        if (e.keyValue() == GLFW_KEY_R) {
+            if (m_gameMode == GameMode::Auto) { return; }
+
+            initGameStateRandom(m_lenX, m_lenY);
+            m_gameMode = GameMode::Manual;
+            m_nextStep = false;
+
+        }
         if (e.keyValue() == GLFW_KEY_SPACE) {
             m_nextStep = false;
             if (m_gameMode == GameMode::Auto) {
@@ -177,7 +180,7 @@ void GameOfLife::PImpl::onEvent(Event& e)
                 m_gameMode = GameMode::Auto;
             }            
         }
-        
+
     }
 
     if (e.type() == EventType::MouseMoved) {
@@ -195,31 +198,22 @@ void GameOfLife::PImpl::onEvent(Event& e)
     if (e.type() == EventType::MouseClicked) {
         // This does not work and will require modifications to rendering.
         if (e.keyValue() == GLFW_MOUSE_BUTTON_LEFT) {
-            // printf("mouse_click at (x: %.4f, y: %.4f)\n",
-            //        m_lastCursorXPos, m_lastCursorYPos);
-
-            float tx = (((m_lastCursorXPos / (1280.0f / 2.0f))) - 1.0f) * 10.0f;
-            float ty =  -1.0f * ((m_lastCursorYPos / (720.0f / 2.0f)) - 1.0f) * 10.0f;
-            
-            // printf("mouse_click_tansl (x: %.4f, y: %.4f)\n",
-            //        tx, ty);
-            m_lastCursorYPosFixed = ty;
-            m_lastCursorXPosFixed = tx;
-            
+            m_lastCursorXPos = e.mouseValues().first;
+            m_lastCursorYPos = e.mouseValues().second;
             m_mouseClicked = true;
         }
     }
 }
 
-void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
+void GameOfLife::PImpl::initGameStateRandom(std::size_t lenX, std::size_t lenY)
 {
     m_cellState = std::vector(lenY, std::vector<std::uint32_t>(lenX));
     m_cellStateSwp = std::vector(lenY, std::vector<std::uint32_t>(lenX));
     
     m_lenX = lenX;
     m_lenY = lenY;
-    // Start with cell one:
-    // for automation have, say 20% alive ?
+
+    // Put each cell active with, say 20% chance
     float startsAlive = 0.0f;
     for (std::size_t y = 0; y < lenY; ++y) {
         
@@ -237,62 +231,13 @@ void GameOfLife::PImpl::initGameState(std::size_t lenX, std::size_t lenY)
     }   
 }
 
-void GameOfLife::PImpl::initGameStateFromTestboard()
-{
-
-    std::uint16_t testb[20][20] = {
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    };
-    
-
-    
-    std::uint32_t lenX = 20;
-    std::uint32_t lenY = 20;
-    m_lenX = lenX;
-    m_lenY = lenY;
-
-    m_cellState = std::vector(lenY, std::vector<std::uint32_t>(lenX));
-    m_cellStateSwp = std::vector(lenY, std::vector<std::uint32_t>(lenX));
-
-    
-    for (std::uint32_t y = 0; y < lenY; ++y) {
-        
-        for (std::uint32_t x = 0; x < lenX; ++x) {
-
-            m_cellState[y][x] = testb[y][x];
-            
-        }
-
-    }
-}
-
 void GameOfLife::PImpl::initGameStateFromSetupUI()
 {
         
     m_lenX = m_cellState[0].size();
     m_lenY = m_cellState.size();
-    m_cellStateSwp = std::vector(m_lenY, std::vector<std::uint32_t>(m_lenX));    
+    m_cellStateSwp = std::vector(m_lenY, std::vector<std::uint32_t>(m_lenX));
 }
-
 
 void GameOfLife::PImpl::checkCells()
 {
@@ -396,8 +341,9 @@ void GameOfLife::PImpl::handleNextStep()
 
 GameOfLife::GameOfLife(LayerManager* manager,
                        const std::vector<std::vector<std::uint32_t>>& initState)
-    : m_pImpl(std::make_unique<PImpl>(*this, manager, 25.0f, initState))
-{    
+    : m_pImpl(std::make_unique<PImpl>(*this, manager, 40.0f, initState))
+{
+
 }
 
 GameOfLife::~GameOfLife()

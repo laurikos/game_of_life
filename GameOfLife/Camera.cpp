@@ -11,7 +11,7 @@ struct Camera::PImpl
     glm::mat4 m_viewProjectionMatrix;
 
     glm::vec3 m_position = glm::vec3(0.0f);
-    float m_rotation = 0.0f;
+    float m_rotation = 90.0f;
 
     PImpl(Camera& parent, float left, float right, float bottom, float top);
     ~PImpl();

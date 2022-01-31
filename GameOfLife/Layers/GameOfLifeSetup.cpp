@@ -20,9 +20,7 @@ struct GameOfLifeSetup::PImpl {
     
     std::uint32_t m_gameAreaLenX;
     std::uint32_t m_gameAreaLenY;
-    std::vector<std::vector<std::uint32_t>> m_initialCellState;
-
-    
+    std::vector<std::vector<std::uint32_t>> m_initialCellState;    
     
     PImpl(GameOfLifeSetup& parent, LayerManager* manager);
     ~PImpl();
@@ -62,16 +60,9 @@ void GameOfLifeSetup::PImpl::init()
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    
-    // Setup Dear ImGui style
+    io.ConfigFlags |= ImGuiWindowFlags_HorizontalScrollbar;    
+        
     ImGui::StyleColorsDark();
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags/* & ImGuiConfigFlags_ViewportsEnable*/)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
 
     auto window = m_manager->getWindow();
     
@@ -107,17 +98,40 @@ void GameOfLifeSetup::PImpl::onRender()
     if (!m_isInitialized) {
 
         if (!m_isGameAreaSizeSet) {
-            ImGui::Begin("Game area size");
-            ImGui::Text("Set width and height for the game of life area");
+            ImGuiIO& io = ImGui::GetIO(); (void)io;
+            ImGui::SetNextWindowPos(
+                ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f),
+                ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+                ImGui::SetNextWindowSize(ImVec2(600, 450));
+            ImU32 flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+            ImGui::Begin("Game area size", NULL, flags);
+            
+            ImGui::Text("WELCOME TO GAME OF LIFE!");
+            ImGui::Text("First set the width and height for the game area and");
+            ImGui::Text("after that select the initial active cells.");
+            ImGui::Text("When game starts you can:");
+            ImGui::Text("    - Use arrow keys to move camera");
+            ImGui::Text("    - Mouse scroll to zoom in/out");
+            ImGui::Text("    - Press key 'x' to proceed to next step.");
+            ImGui::Text("    - Press key 'space' to toggle automation mode on/off.");
+            ImGui::Text("    - Press key 'r' (in manual mode) to init board with random state.");
+            ImGui::Text("Known issues:");
+            ImGui::Text("   > Initial cell setup is just bad for large game area...");
+            ImGui::Text("      (but it was easy enough to imeplement in short time)");
+            ImGui::Text("   > Resizing window while I'm (ImGui window) showing.");
+            ImGui::Text("      (As you probably tried just now) at least on my hardware.");
+            ImGui::Text("      When the game starts resizing should be safe to do.");
+            ImGui::Text("");
+            ImGui::Text("Now set width and height for the game of life area");
             ImGui::Text("Minimum values: 2 -- Maximum 10 000 quads [e.g. 100 x 100]");
 
             static int tmpy = 70;
             static int tmpx = 140;
 
-            static int x = 70;
+            static int x = 140;
             ImGui::InputInt("Width", &x);
 
-            static int y = 140;
+            static int y = 70;
             ImGui::InputInt("Height", &y);
 
             
@@ -152,13 +166,25 @@ void GameOfLifeSetup::PImpl::onRender()
         }
         else if (!m_isInitialCellStateSet) {
 
-            ImGui::Begin("Set initial cells");
+            ImGuiIO& io = ImGui::GetIO(); (void)io;
+            ImGui::SetNextWindowPos(
+                ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f),
+                ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+            ImGui::SetNextWindowSize(ImVec2(600, 500));
 
-            if (ImGui::Button("Apply", ImVec2(40, 40))) {
+            const ImU32 flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_HorizontalScrollbar
+                | ImGuiWindowFlags_AlwaysHorizontalScrollbar
+                | ImGuiWindowFlags_NoMove;
+            ImGui::Begin("Set initial cells", NULL, flags);
+
+            ImGui::Text("Click here when you are ready to go ==>");
+            ImGui::SameLine();
+            if (ImGui::Button("Apply", ImVec2(60, 40))) {
                 m_isInitialCellStateSet = true;
                 m_isInitialized = true;                
             }
-            
+            ImGui::Text("You can leave all cells inactive and press 'r' when the game starts");
+            ImGui::Text("to setup board with random state");
             for (std::uint16_t y = 0; y < m_gameAreaLenY; ++y) {
                 for (std::uint16_t x = 0; x < m_gameAreaLenX; ++x) {
                     
@@ -178,7 +204,7 @@ void GameOfLifeSetup::PImpl::onRender()
                             (ImVec4)ImColor::HSV(4.0f, 0.7f, 0.7f));
 
                         if (ImGui::Button("1")) {
-                            m_initialCellState[y][x] = 0;
+                            m_initialCellState[y][x] = 0;                           
                         }
 
                     }
@@ -203,8 +229,8 @@ void GameOfLifeSetup::PImpl::onRender()
     }
     else {
         // Show keybindings and info / help
-        // or maybe don't show anything ?
-        // lets see.
+        // or maybe don't show anything?
+        // Probably better to keep it clean.
     }
 }
 
@@ -222,12 +248,6 @@ void GameOfLifeSetup::PImpl::endSceneUI()
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    if (io.ConfigFlags /*& ImGuiConfigFlags_ViewportsEnable*/)
-    {
-        GLFWwindow* backup_current_context = glfwGetCurrentContext();
-        glfwMakeContextCurrent(backup_current_context);
-    }    
 }
 
 
@@ -265,4 +285,8 @@ void GameOfLifeSetup::startSceneUI()
 void GameOfLifeSetup::endSceneUI()
 {
     m_pImpl->endSceneUI();
+}
+
+void GameOfLifeSetup::onEvent(Event& e) {
+    
 }

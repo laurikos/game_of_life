@@ -23,6 +23,7 @@ private:
     float m_lastTime = 0.0f;
 
     Layer* m_gameLayer = nullptr;
+    Layer* m_gameSetupLayer = nullptr;
     
     std::shared_ptr<Window> m_window;
     std::unique_ptr<LayerManager> m_layerManager;
