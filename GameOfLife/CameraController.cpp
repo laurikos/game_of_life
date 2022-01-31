@@ -82,21 +82,28 @@ void CameraController::PImpl::onWindowResized(Event& e)
 }
 
 void CameraController::PImpl::onUpdate(float deltaTime)
-{    
+{
+    // Had to rotate came because rendering was off be 90 degress.
+    // and I could not find why in decent amount of time
+    // Commented lines are as they should be.
     if (m_moveLeft) {
-        m_cameraPosition.x -= m_cameraMoveSpd * deltaTime;        
+        // m_cameraPosition.x -= m_cameraMoveSpd * deltaTime;
+        m_cameraPosition.y -= m_cameraMoveSpd * deltaTime;
     }
     if (m_moveRight)
     {
-        m_cameraPosition.x += m_cameraMoveSpd * deltaTime;        
+        // m_cameraPosition.x += m_cameraMoveSpd * deltaTime;
+        m_cameraPosition.y += m_cameraMoveSpd * deltaTime;
     }
 
     if (m_moveUp)
     {
-        m_cameraPosition.y += m_cameraMoveSpd * deltaTime;
+        // m_cameraPosition.y += m_cameraMoveSpd * deltaTime;
+        m_cameraPosition.x -= m_cameraMoveSpd * deltaTime;
     }
     if (m_moveDown) {
-        m_cameraPosition.y -= m_cameraMoveSpd * deltaTime;
+        m_cameraPosition.x += m_cameraMoveSpd * deltaTime;
+        // m_cameraPosition.y -= m_cameraMoveSpd * deltaTime;
     }
 
     m_camera.setPosition(m_cameraPosition);
