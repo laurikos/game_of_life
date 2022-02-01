@@ -1,6 +1,6 @@
 # Game of Life
 
-## Build
+## Build (Tested on Ubuntu 20.04)
 ### Dependencies
 - [GLFW](https://github.com/glfw/glfw)
 - [Dear ImGui](https://github.com/ocornut/imgui)
@@ -9,17 +9,23 @@
 
 Might need to be installed manually:
 > For GLFW
+>
 > apt install xorg-dev
 
 ### To build the application:
 Clone repository with dependencies as submodules
-> git clone --recurse-submodules https://github.com/laurikos/game_of_life.git <CLONE-DIR>
-
+> git clone --recurse-submodules https://github.com/laurikos/game_of_life.git CLONE-DIR
+>
 > cd <CLONE-DIR>
+>
 > mkdir build
+>
 > cd build
+>
 > cmake ../
+>
 > make -jN
+>
 
 ## Run the application:
 > ,/GameOfLife
@@ -35,8 +41,14 @@ to setup the Game of Life and providing the details about how to run game.
 
 ### Keybindings:
 > Arrow keys to move camera
+>
 > Mouse wheel to zoom in/out
+>
 > 'x' proceed a step in game in manual mode
+>
 > 'space' toggle mode between manual/automatic
+>
 > 'r' If manual mode is toggled on -> initializes game area again with random cells
+>
 > 'esc' close the program (Also the 'x' button on window does the same)
+>
