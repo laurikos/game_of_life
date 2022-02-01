@@ -1,7 +1,7 @@
 #include "LayerManager.h"
 #include "Window.h"
-#include "Layers/UILayer.h"
-#include "Layers/GameOfLife.h"
+#include "../GameOfLife/GameOfLifeSetup.h"
+#include "../GameOfLife/GameOfLife.h"
 
 #include <vector>
 
@@ -10,7 +10,7 @@ struct LayerManager::PImpl {
     std::shared_ptr<Window> m_window;
 
     std::vector<std::unique_ptr<Layer>> m_layers;    
-    UILayer* m_uiLayer = nullptr;
+    Layer* m_uiLayer = nullptr;
     Layer* m_gameLayer = nullptr;
     bool m_isGameLayerInitialized;
 
@@ -38,7 +38,7 @@ Layer* LayerManager::PImpl::addLayer(std::unique_ptr<Layer> layer)
     m_layers.emplace_back(std::move(layer));
     Layer* insertedLayer = m_layers.back().get();
     if (insertedLayer->isImGuiLayer()) {
-        m_uiLayer = static_cast<UILayer*>(insertedLayer);
+        m_uiLayer = static_cast<Layer*>(insertedLayer);
     }
     return insertedLayer;
 }

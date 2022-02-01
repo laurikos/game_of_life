@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Events.h"
-#include "../Layer.h"
+#include "../Core/Events.h"
+#include "../Core/Layer.h"
 #include <memory>
 
 class LayerManager;
@@ -19,8 +19,8 @@ public:
     
     virtual bool isImGuiLayer() override { return true; }
     
-    void startSceneUI();
-    void endSceneUI();
+    virtual void startSceneUI() override;
+    virtual void endSceneUI() override;
 private:
     struct PImpl;
     std::unique_ptr<PImpl> m_pImpl;

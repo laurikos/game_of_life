@@ -1,10 +1,10 @@
 #include "GameOfLife.h"
-#include "../LayerManager.h"
-#include "../TemporaryRenderer.h"
-#include "../Camera.h"
-#include "../Shader.h"
-#include "../Random.h"
-#include "../CameraController.h"
+#include "Random.h"
+#include "../Core/LayerManager.h"
+#include "../Renderer/Renderer.h"
+#include "../Renderer/Camera.h"
+#include "../Renderer/Shader.h"
+#include "CameraController.h"
 
 #include <GLFW/glfw3.h>
 
@@ -82,10 +82,10 @@ void GameOfLife::PImpl::onUpdate(float deltaTime)
 {
     m_camera->onUpdate(deltaTime);
     
-    TemporaryRenderer::setClearColor();
-    TemporaryRenderer::clear();
+    Renderer::setClearColor();
+    Renderer::clear();
 
-    TemporaryRenderer::start(m_camera->getCamera());
+    Renderer::start(m_camera->getCamera());
 
     // To have everything drawn around (0, 0, 0)
     std::int32_t positionFixX = (-1) * (m_lenX / 2.0f);
@@ -107,14 +107,14 @@ void GameOfLife::PImpl::onUpdate(float deltaTime)
 
             if (m_cellState.at(y).at(x)) {
 
-                TemporaryRenderer::drawQuad({ posY, posX, 0.0f },
+                Renderer::drawQuad({ posY, posX, 0.0f },
                                             { 0.8f, 0.8f },
                                             { 0.67f, 0.17f, 0.27f, 1.0f});
             }
             
             else {
                 
-                TemporaryRenderer::drawQuad({ posY, posX, 0.0f },
+                Renderer::drawQuad({ posY, posX, 0.0f },
                                             { 0.8f, 0.8f },
                                             { 0.2f, 0.2f, 0.2f, 1.0f});
             }
@@ -134,7 +134,7 @@ void GameOfLife::PImpl::onUpdate(float deltaTime)
         
     }
     
-    TemporaryRenderer::end();
+    Renderer::end();
 }
 
 void GameOfLife::PImpl::onRender()

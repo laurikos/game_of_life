@@ -1,5 +1,5 @@
 #include "GameOfLifeSetup.h"
-#include "../LayerManager.h"
+#include "../Core/LayerManager.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -106,7 +106,7 @@ void GameOfLifeSetup::PImpl::onRender()
             ImU32 flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
             ImGui::Begin("Game area size", NULL, flags);
             
-            ImGui::Text("WELCOME TO GAME OF LIFE!");
+            ImGui::Text("WELCOME TO THE GAME OF LIFE!");
             ImGui::Text("First set the width and height for the game area and");
             ImGui::Text("after that select the initial active cells.");
             ImGui::Text("When game starts you can:");
@@ -115,6 +115,7 @@ void GameOfLifeSetup::PImpl::onRender()
             ImGui::Text("    - Press key 'x' to proceed to next step.");
             ImGui::Text("    - Press key 'space' to toggle automation mode on/off.");
             ImGui::Text("    - Press key 'r' (in manual mode) to init board with random state.");
+            ImGui::Text("    - Press key 'esc' (or close window) to close the game.");
             ImGui::Text("Known issues:");
             ImGui::Text("   > Initial cell setup is just bad for large game area...");
             ImGui::Text("      (but it was easy enough to imeplement in short time)");

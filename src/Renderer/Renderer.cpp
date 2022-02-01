@@ -1,4 +1,5 @@
-#include "TemporaryRenderer.h"
+#include "Renderer.h"
+#include "OpenGLObjects.h"
 #include "Shader.h"
 
 #include <glad/glad.h>
@@ -64,7 +65,7 @@ struct RendererData
 
 static RendererData s_data;
 
-void TemporaryRenderer::init()
+void Renderer::init()
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -112,31 +113,30 @@ void TemporaryRenderer::init()
     s_data.vertexPositions[3] = {-0.5f,  0.5f, 0.0f, 1.0f };
 }
 
-void TemporaryRenderer::close() {}
+void Renderer::close() {}
 
-void TemporaryRenderer::setClearColor(const glm::vec4& color)
+void Renderer::setClearColor(const glm::vec4& color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void TemporaryRenderer::clear()
+void Renderer::clear()
 {
-    // glClear(GL_COLOR_BUFFER_BIT);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);       
 }
 
-void TemporaryRenderer::handleResize(std::uint32_t width, std::uint32_t height)
+void Renderer::handleResize(std::uint32_t width, std::uint32_t height)
 {
-    TemporaryRenderer::setViewport(0, 0, width, height);
+    Renderer::setViewport(0, 0, width, height);
 }
 
-void TemporaryRenderer::setViewport(std::uint32_t x, std::uint32_t y,
+void Renderer::setViewport(std::uint32_t x, std::uint32_t y,
                             std::uint32_t width, std::uint32_t height)
 {
     glViewport(x, y, width, height);
 }
 
-void TemporaryRenderer::start(Camera& camera)
+void Renderer::start(Camera& camera)
 {
     s_data.shader->bind();
     s_data.shader->uploadUniformMat4("u_ViewProjection", camera.viewProjectionMatrix());
@@ -145,7 +145,7 @@ void TemporaryRenderer::start(Camera& camera)
     s_data.pQuadVertices = s_data.quadVertices.get();
 }
 
-void TemporaryRenderer::end()
+void Renderer::end()
 {
     std::uint32_t dataSize = reinterpret_cast<std::uint8_t*>(s_data.pQuadVertices)
         - reinterpret_cast<std::uint8_t*>(s_data.quadVertices.get());
@@ -155,7 +155,7 @@ void TemporaryRenderer::end()
     execute(s_data.vao, s_data.quadIndicesCount);    
 }
 
-void TemporaryRenderer::drawQuad(const glm::vec3& position,
+void Renderer::drawQuad(const glm::vec3& position,
                                  const glm::vec2 size, const glm::vec4& color)
 {
     glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
@@ -185,7 +185,7 @@ void TemporaryRenderer::drawQuad(const glm::vec3& position,
     s_data.quadIndicesCount += 6;
 }
 
-void TemporaryRenderer::execute(const std::shared_ptr<VAO>& vao,
+void Renderer::execute(const std::shared_ptr<VAO>& vao,
                                 std::uint32_t indexCount)
 {
     std::uint32_t count = !indexCount ?
@@ -193,10 +193,8 @@ void TemporaryRenderer::execute(const std::shared_ptr<VAO>& vao,
         indexCount;
 
     vao->bind();
-    // printf("[TemporaryRenderer::execute] count ==> %d\n", count);
-    // printf("\tvao->getIBO()->indicesCount(): %d\n", vao->getIBO()->indicesCount());
-    // printf("\tindexCount:                    %d\n", indexCount);
     glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+

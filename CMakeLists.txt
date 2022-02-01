@@ -20,29 +20,26 @@ CompilerId: ${CMAKE_CXX_COMPILER_ID}
 # VENDORED
 set(GLM_INCLUDE_DIR vendor/glm)
 set(IMGUI_INCLUDE_DIR vendor/imgui)
-# set(IMGUI_BE_INCLUDE_DIR vendor/imgui/backends)
 set(GLFW_INCLUDE_DIR vendor/GLFW/include)
 set(GLAD_INCLUDE_DIR vendor/glad/include)
 include_directories(
   ${GLM_INCLUDE_DIR}
   ${IMGUI_INCLUDE_DIR}
-  # ${IMGUI_BE_INCLUDE_DIR}
   ${GLAD_INCLUDE_DIR}
   ${GLFW_INCLUDE_DIR}
 )
 
-# add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 add_subdirectory(vendor)
 
 add_definitions(-pthread)
 add_definitions(-DGLFW_INCLUDE_NONE)
 
 file(GLOB_RECURSE SRCS
-	GameOfLife/*.cpp
+	src/*.cpp
 )
 
 file(GLOB_RECURSE HEADERS
-	GameOfLife/*.h
+	src/*.h
 )
 
 add_executable(${PROJECTNAME} ${HEADERS} ${SRCS})

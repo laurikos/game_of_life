@@ -6,6 +6,13 @@
 
 struct GLFWwindow;
 
+/*
+ * Window is main window for the application.
+ * Polls the events from GLFWwindow and is queried by application for events.
+ *
+ * Also initializes GLFW and glad. And in OpenGLContext.cpp we initialize
+ * the OpenGL version > 3.x with glad loader.
+ */
 class Window
 {
 public:

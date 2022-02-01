@@ -5,6 +5,11 @@
 
 #include <glm/glm.hpp>
 
+/*
+ * Shader class creates the shader program for vertex & fragment shaders
+ * does the compilation and does the linking.
+ * Handles the uniform variable uploading to the shader(GPU)
+ */
 class Shader
 {
 public:

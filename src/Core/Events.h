@@ -13,6 +13,11 @@ enum class EventType {
     NEvents
 };
 
+
+/*
+ * Event is class that holds all the event types we propagate to layers.
+ * Not my best planned class ever but handles the job well enough for now.
+ */
 class Event
 {
 public:

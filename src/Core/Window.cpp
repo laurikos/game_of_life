@@ -1,8 +1,5 @@
 #include "Window.h"
-#include "OpenGLContext.h"
-
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include "../Renderer/OpenGLContext.h"
 
 #include <stdio.h>
 #include <assert.h>

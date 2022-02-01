@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "Application.h"
+#include "Core/Application.h"
 
 int main(int argc, char* argv[])
 {
@@ -9,10 +9,11 @@ int main(int argc, char* argv[])
         if (i == argc - 1) { printf("\n"); }
     }
 
+    // Create application and start the game loop @ run()
     std::unique_ptr<Application> app = std::make_unique<Application>();
     app->run();
     
-    printf("\n\n========= EXITING APPLICATION =========\n\n");
+    printf("\n========= EXITING APPLICATION =========\n");
     
     return 0;
 }

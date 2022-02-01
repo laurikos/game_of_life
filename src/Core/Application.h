@@ -8,6 +8,11 @@ class Layer;
 
 #include <memory>
 
+/*
+ * Application creates and initializes everything that we need for a game
+ * Also handles the game loop and polls events from Window which then forwards to
+ * layers, if needed.
+ */
 class Application
 {
 public:
@@ -17,7 +22,7 @@ public:
     void run();
 
     void onEvent(Event& e);
-    
+
 private:
     bool m_isRunning;
     float m_lastTime = 0.0f;

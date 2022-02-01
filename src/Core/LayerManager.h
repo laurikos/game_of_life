@@ -9,6 +9,13 @@
 class Window;
 struct GLFWwindow;
 
+/*
+ * LayerManager is glue between the layers and between window and layers.
+ *
+ * Again "renderLayers()" should probably be renamed as renderUILayers, since
+ * we only do ImGui window rendering there.
+ *
+ */
 class LayerManager
 {
 public:
@@ -29,7 +36,7 @@ public:
     Layer* settingUpDone(const std::vector<std::vector<std::uint32_t>>& initState);
     bool isGameLayerInitialized() const;
     Layer* gameLayer();
-    
+
 private:
     struct PImpl;
     std::unique_ptr<PImpl> m_pImpl;

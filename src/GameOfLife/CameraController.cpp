@@ -1,5 +1,5 @@
 #include "CameraController.h"
-#include "Camera.h"
+#include "../Renderer/Camera.h"
 
 #include <GLFW/glfw3.h>
 
@@ -83,7 +83,7 @@ void CameraController::PImpl::onWindowResized(Event& e)
 
 void CameraController::PImpl::onUpdate(float deltaTime)
 {
-    // Had to rotate came because rendering was off be 90 degress.
+    // Had to rotate came because rendering was off be 90 degrees.
     // and I could not find why in decent amount of time
     // Commented lines are as they should be.
     if (m_moveLeft) {
